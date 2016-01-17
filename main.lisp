@@ -1,9 +1,3 @@
-; Andrew Lawrence
-; 1295565
-; CMPUT 325, Lec B1
-; Assignment #1
-
-; QUESTION 1
 ; Returns T if the list Y contains X, which may be either an atom or a list.
 ;
 ; Test Cases:
@@ -27,13 +21,7 @@
 ; Test Case, what should happen here??
 ;(xmember '() '(()))
 
-; Needed????
-;documentation
-;(defun minor_helper_function_for_question_1 ()
-;
-;)
 
-; QUESTION 2
 ; Returns a single list containing all atoms, nested or otherwise, contained in the list X in the orginal order.
 ;
 ; Test Cases:
@@ -52,7 +40,7 @@
     )
 )
 
-; QUESTION 3
+
 ; Returns a single list that mixes the elements of the two list parameters together.
 ; If the lists are not the same length, the elements at the end of the longer list are appended to the end of the resutant list.
 ;
@@ -77,7 +65,7 @@
     )
 )
 
-; QUESTION 4
+
 ; Returns a pair of lists (L1, L2) which each consist of elements from list L alternatingly.
 ;
 ; Test Cases:
@@ -110,7 +98,7 @@
     )
 )
 
-; TODO: Remove; not needed
+
 ; Returns the number of top-level items in the given list.
 ;
 ; Test Cases:
