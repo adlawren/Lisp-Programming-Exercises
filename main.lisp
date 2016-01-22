@@ -112,3 +112,111 @@
         0
     )
 )
+
+; Returns the subset of the vaues in given list which sum to the provided value.
+; Returns an empty list if no such subset can be found.
+;
+; Test Cases:
+; (subsetsum '() '() '() 0) => ()
+; (subsetsum '(1) '() '() 1) => (1)
+; (subsetsum '(1) '() '() 2) => ()
+; (subsetsum '(1 2 3) '() '() 5) => (2 3)
+; (subsetsum '(1 2 3) '() '() 4) => (1 3)
+; (subsetsum '(1 2 3) '() '() 7) => ()
+; (subsetsum '(1 2 3 4 5 6 7 8 9) '() '() 13) => (1 3 4 5)
+(defun subsetsum (L S R X)
+    (if (null L)
+        R
+        (subsetsum
+            (cdr L)
+            (allsets S (car L))
+            (matchingsum
+                (allsets S (car L))
+                X
+            )
+            X
+        )
+    )
+)
+
+; Returns a list in the provided list of lists, the elements of which sum to the given value.
+; Returns an empty list if no such list can be found.
+;
+; Test Cases:
+; (matchingsum '() 0) => ()
+; (matchingsum '(()) 0) => ()
+; (matchingsum '((1)) 0) => ()
+; (matchingsum '((1)) 1) => (1)
+; (matchingsum '((1 2) (3 4)) 7) => (3 4)
+; (matchingsum '((1 2 3) (4 5) (6 7 8)) 5) => ()
+; (matchingsum '((1 2 3) (4 5) (6 7 8)) 21) => (6 7 8)
+(defun matchingsum (S X)
+    (if (null S)
+        ()
+        (if
+            (equal
+                (sum (car S))
+                X
+            )
+            (append
+                (car S)
+            )
+            (matchingsum (cdr S) X)
+        )
+
+    )
+)
+
+; Returns the sum of the items in the list.
+;
+; Test Cases:
+; (sum '()) => 0
+; (sum '(1)) => 1
+; (sum '(1 2 3 4 5)) => 15
+(defun sum (L)
+    (if (null L)
+        0
+        (+
+            (car L)
+            (sum (cdr L))
+        )
+    )
+)
+
+; Returns all of the possible lists which may be formed using the additional element and the given list of lists.
+;
+; Test Cases:
+; (allsets nil 0) => (() (0))
+; (allsets '((1)) 0) => ((1) (1 0))
+; (allsets '(() (1) (1 2)) 3) => (() (1) (1 2) (3) (1 3) (1 2 3))
+(defun allsets (S X)
+    (if (null S)
+        (list
+            '()
+            (list X)
+        )
+        (append
+            S
+            (appendall S X)
+        )
+    )
+)
+
+; Returns a list of the lists formed by appending the given element to each list in the given list of lists.
+;
+; Test Cases:
+; (appendall nil 0)
+; (appendall '((0)) 1)
+; (appendall '((0 1) (2 3)) 4)
+; (appendall '((0) (1 2 3) (4 5 6 7 8)) 9)
+(defun appendall (L X)
+    (if (null L)
+        ()
+        (append
+            (list
+                (append (car L) (list X))
+            )
+            (appendall (cdr L) X)
+        )
+    )
+)
