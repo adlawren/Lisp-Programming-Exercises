@@ -113,59 +113,108 @@
     )
 )
 
-; Returns the subset of the vaues in given list which sum to the provided value.
-; Returns an empty list if no such subset can be found.
+; ...
 ;
 ; Test Cases:
-; (subsetsum '() '() '() 0) => ()
-; (subsetsum '(1) '() '() 1) => (1)
-; (subsetsum '(1) '() '() 2) => ()
-; (subsetsum '(1 2 3) '() '() 5) => (2 3)
-; (subsetsum '(1 2 3) '() '() 4) => (1 3)
-; (subsetsum '(1 2 3) '() '() 7) => ()
-; (subsetsum '(1 2 3 4 5 6 7 8 9) '() '() 13) => (1 3 4 5)
-(defun subsetsum (L S R X)
+; (subsetsum '() '(() 0) '() 0) => ()
+; (subsetsum '(1) '(() 0) '() 1) => (1)
+; (subsetsum '(1) '(() 0) '() 2) => ()
+; (subsetsum '(1 2 3) '(() 0) '() 5) => (2 3)
+; (subsetsum '(1 2 3) '(() 0) '() 4) => (1 3)
+; (subsetsum '(1 2 3) '(() 0) '() 7) => ()
+; (subsetsum '(1 2 3 4 5 6 7 8 9) '(() 0) '() 13) => (1 3 4 5)
+;(defun subsetsum (L S R X)
+;    (if (null L)
+;        R
+;        (subsetsum
+;            (cdr L)
+;            (allsets S (car L))
+;            (matchingsum
+;                (allsets S (car L))
+;                X
+;            )
+;            X
+;        )
+;    )
+;)
+
+(defun computesubsetsum (L S X)
+    (matchingsum (getallsubsets L S (+ X 1)) X)
+)
+
+(defun subsetsum (L X)
+    (computesubsetsum L '((() 0)) X)
+)
+
+(print '(SUBSETSUM TESTS))
+(trace subsetsum)
+
+;(subsetsum '() 0)
+;(subsetsum '(1) 1)
+;(subsetsum '(1) 2)
+;(subsetsum '(1 2 3) 5)
+;(subsetsum '(1 2 3) 4)
+;(subsetsum '(1 2 3) 7)
+;(subsetsum '(1 2 3 4 5 6 7 8 9) 13)
+
+; Easy
+;(subsetsum '(1 2 3) 5)
+;(subsetsum '(1 5 3) 2)
+;(subsetsum '(1 16 2 8 4) 29)
+;(subsetsum '(1 1 5 6 8) 10)
+;(subsetsum '(1 10 100 1000 10000) 5)
+
+; Hard
+; ...
+
+(untrace subsetsum)
+
+(defun getallsubsets (L S M)
     (if (null L)
-        R
-        (subsetsum
-            (cdr L)
-            (allsets S (car L))
-            (matchingsum
-                (allsets S (car L))
-                X
-            )
-            X
-        )
+        S
+        (getallsubsets (cdr L) (allsets S (car L) M) M)
     )
 )
 
-; Returns a list in the provided list of lists, the elements of which sum to the given value.
-; Returns an empty list if no such list can be found.
+;(print '(GETALLSUBSETS TESTS))
+;(trace getallsubsets)
+;(getallsubsets '() '((() 0)))
+;(getallsubsets '(1) '((() 0)))
+;(getallsubsets '(1 2 3) '((() 0)))
+;(untrace getallsubsets)
+
+; ...
 ;
 ; Test Cases:
 ; (matchingsum '() 0) => ()
-; (matchingsum '(()) 0) => ()
-; (matchingsum '((1)) 0) => ()
-; (matchingsum '((1)) 1) => (1)
-; (matchingsum '((1 2) (3 4)) 7) => (3 4)
-; (matchingsum '((1 2 3) (4 5) (6 7 8)) 5) => ()
-; (matchingsum '((1 2 3) (4 5) (6 7 8)) 21) => (6 7 8)
+; (matchingsum '(((1) 1)) 1) => (1)
+; (matchingsum '(((1 1) 2)) 2) => (1 1)
+; (matchingsum '(((1 1) 2) ((1 3) 4)) 5) => ()
+; (matchingsum '(((1 1) 2) ((1 3) 4) ((2 3) 5)) 5) => (2 3)
 (defun matchingsum (S X)
-    (if (null S)
-        ()
-        (if
-            (equal
-                (sum (car S))
-                X
-            )
-            (append
-                (car S)
-            )
-            (matchingsum (cdr S) X)
+  (if (null S)
+    ()
+    (if (equal
+            (cadar S)
+            X
         )
-
+        (caar S)
+        (matchingsum
+            (cdr S)
+            X
+        )
     )
+  )
 )
+
+;(print '(MATCHINGSUM TESTS))
+;(trace matchingsum)
+;(matchingsum '() 0)
+;(matchingsum '(((1) 1)) 1)
+;(matchingsum '(((1 1) 2)) 2)
+;(matchingsum '(((1 1) 2) ((1 3) 4)) 5)
+;(matchingsum '(((1 1) 2) ((1 3) 4) ((2 3) 5)) 5)
+;(untrace matchingsum)
 
 ; Returns the sum of the items in the list.
 ;
@@ -183,40 +232,55 @@
     )
 )
 
-; Returns all of the possible lists which may be formed using the additional element and the given list of lists.
+; ...
 ;
 ; Test Cases:
-; (allsets nil 0) => (() (0))
-; (allsets '((1)) 0) => ((1) (1 0))
-; (allsets '(() (1) (1 2)) 3) => (() (1) (1 2) (3) (1 3) (1 2 3))
-(defun allsets (S X)
+; (allsets '() X) => ()
+; (allsets '((() 0)) 1) => ((() 0) ((1) 1))
+; (allsets '((() 0) ((1) 1) ((1 2) 3)) 3) => ((() 0) ((1) 1) ((1 2) 3) ((3) 3) ((1 3) 4) ((1 2 3) 6))
+; (allsets '(((1 2) 3) ((2 2) 4) ((1 4 5) 10)) 12) => (((1 2) 3) ((2 2) 4) ((1 4 5) 10) ((1 2 12) 15) ((2 2 12) 16) ((1 4 5 12) 22))
+(defun allsets (S X M)
     (if (null S)
-        (list
-            '()
-            (list X)
-        )
+        ()
         (append
             S
-            (appendall S X)
+            (appendall S X M)
         )
     )
 )
 
-; Returns a list of the lists formed by appending the given element to each list in the given list of lists.
+; ...
 ;
 ; Test Cases:
-; (appendall nil 0)
-; (appendall '((0)) 1)
-; (appendall '((0 1) (2 3)) 4)
-; (appendall '((0) (1 2 3) (4 5 6 7 8)) 9)
-(defun appendall (L X)
+; (appendall '() 1) => ()
+; (appendall '((() 0)) 1) => (((1) 1))
+; (appendall '(((1) 1) ((2) 2)) 3) => (((1 3) 4) ((2 3) 5))
+; (appendall '(((1 2) 3) ((4 5 6 7) 8)) 9) => (((1 2 9) 12) ((4 5 6 7 9) 17))
+(defun appendall (L X M)
     (if (null L)
         ()
         (append
-            (list
-                (append (car L) (list X))
+            (if (< (+ (cadar L) X) M)
+                (list
+                    (list
+                        (append
+                            (caar L)
+                            (list X)
+                        )
+                        (+ (cadar L) X)
+                    )
+                )
+                ()
             )
-            (appendall (cdr L) X)
+            (appendall (cdr L) X M)
         )
     )
 )
+
+;(print '(APPENDALL TESTS))
+;(trace appendall)
+;(appendall '() 1 100)
+;(appendall '((() 0)) 1 111)
+;(appendall '(((1) 1) ((2) 2)) 3 100)
+;(appendall '(((1 2) 3) ((4 5 6 7) 8)) 9 15)
+;(untrace appendall)
