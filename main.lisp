@@ -18,9 +18,6 @@
          nil)
 )
 
-; Test Case, what should happen here??
-;(xmember '() '(()))
-
 
 ; Returns a single list containing all atoms, nested or otherwise, contained in the list X in the orginal order.
 ;
@@ -113,7 +110,7 @@
     )
 )
 
-; ...
+; Solution to the subsetsum problem.
 ;
 ; Test Cases:
 ; (subsetsum '() '(() 0) '() 0) => ()
@@ -123,164 +120,33 @@
 ; (subsetsum '(1 2 3) '(() 0) '() 4) => (1 3)
 ; (subsetsum '(1 2 3) '(() 0) '() 7) => ()
 ; (subsetsum '(1 2 3 4 5 6 7 8 9) '(() 0) '() 13) => (1 3 4 5)
-;(defun subsetsum (L S R X)
-;    (if (null L)
-;        R
-;        (subsetsum
-;            (cdr L)
-;            (allsets S (car L))
-;            (matchingsum
-;                (allsets S (car L))
-;                X
-;            )
-;            X
-;        )
-;    )
-;)
-
-(defun computesubsetsum (L S X)
-    (matchingsum (getallsubsets L S (+ X 1)) X)
-)
-
 (defun subsetsum (L X)
-    (computesubsetsum L '((() 0)) X)
-)
-
-(print '(SUBSETSUM TESTS))
-(trace subsetsum)
-
-;(subsetsum '() 0)
-;(subsetsum '(1) 1)
-;(subsetsum '(1) 2)
-;(subsetsum '(1 2 3) 5)
-;(subsetsum '(1 2 3) 4)
-;(subsetsum '(1 2 3) 7)
-;(subsetsum '(1 2 3 4 5 6 7 8 9) 13)
-
-; Easy
-;(subsetsum '(1 2 3) 5)
-;(subsetsum '(1 5 3) 2)
-;(subsetsum '(1 16 2 8 4) 29)
-;(subsetsum '(1 1 5 6 8) 10)
-;(subsetsum '(1 10 100 1000 10000) 5)
-
-; Hard
-; ...
-
-(untrace subsetsum)
-
-(defun getallsubsets (L S M)
     (if (null L)
-        S
-        (getallsubsets (cdr L) (allsets S (car L) M) M)
+        nil
+        (computesubsetsum L nil 0 X)
     )
 )
 
-;(print '(GETALLSUBSETS TESTS))
-;(trace getallsubsets)
-;(getallsubsets '() '((() 0)))
-;(getallsubsets '(1) '((() 0)))
-;(getallsubsets '(1 2 3) '((() 0)))
-;(untrace getallsubsets)
-
-; ...
-;
-; Test Cases:
-; (matchingsum '() 0) => ()
-; (matchingsum '(((1) 1)) 1) => (1)
-; (matchingsum '(((1 1) 2)) 2) => (1 1)
-; (matchingsum '(((1 1) 2) ((1 3) 4)) 5) => ()
-; (matchingsum '(((1 1) 2) ((1 3) 4) ((2 3) 5)) 5) => (2 3)
-(defun matchingsum (S X)
-  (if (null S)
-    ()
-    (if (equal
-            (cadar S)
-            X
+(defun computesubsetsum (L B S X)
+    (cond
+        ((= S X)
+            B
         )
-        (caar S)
-        (matchingsum
-            (cdr S)
-            X
+        ((null L)
+            nil
         )
-    )
-  )
-)
-
-;(print '(MATCHINGSUM TESTS))
-;(trace matchingsum)
-;(matchingsum '() 0)
-;(matchingsum '(((1) 1)) 1)
-;(matchingsum '(((1 1) 2)) 2)
-;(matchingsum '(((1 1) 2) ((1 3) 4)) 5)
-;(matchingsum '(((1 1) 2) ((1 3) 4) ((2 3) 5)) 5)
-;(untrace matchingsum)
-
-; Returns the sum of the items in the list.
-;
-; Test Cases:
-; (sum '()) => 0
-; (sum '(1)) => 1
-; (sum '(1 2 3 4 5)) => 15
-(defun sum (L)
-    (if (null L)
-        0
-        (+
-            (car L)
-            (sum (cdr L))
+        ((> (+ S (car L)) X)
+            nil
         )
-    )
-)
-
-; ...
-;
-; Test Cases:
-; (allsets '() X) => ()
-; (allsets '((() 0)) 1) => ((() 0) ((1) 1))
-; (allsets '((() 0) ((1) 1) ((1 2) 3)) 3) => ((() 0) ((1) 1) ((1 2) 3) ((3) 3) ((1 3) 4) ((1 2 3) 6))
-; (allsets '(((1 2) 3) ((2 2) 4) ((1 4 5) 10)) 12) => (((1 2) 3) ((2 2) 4) ((1 4 5) 10) ((1 2 12) 15) ((2 2 12) 16) ((1 4 5 12) 22))
-(defun allsets (S X M)
-    (if (null S)
-        ()
-        (append
-            S
-            (appendall S X M)
-        )
-    )
-)
-
-; ...
-;
-; Test Cases:
-; (appendall '() 1) => ()
-; (appendall '((() 0)) 1) => (((1) 1))
-; (appendall '(((1) 1) ((2) 2)) 3) => (((1 3) 4) ((2 3) 5))
-; (appendall '(((1 2) 3) ((4 5 6 7) 8)) 9) => (((1 2 9) 12) ((4 5 6 7 9) 17))
-(defun appendall (L X M)
-    (if (null L)
-        ()
-        (append
-            (if (< (+ (cadar L) X) M)
-                (list
-                    (list
-                        (append
-                            (caar L)
-                            (list X)
-                        )
-                        (+ (cadar L) X)
-                    )
-                )
-                ()
+        (T
+            (let ((exclusivehalf (computesubsetsum (cdr L) B S X))
+                    (inclusivehalf (computesubsetsum (cdr L) (append B (list (car L))) (+ S (car L)) X))
+                 )
+                 (if (null exclusivehalf)
+                    inclusivehalf
+                    exclusivehalf
+                 )
             )
-            (appendall (cdr L) X M)
         )
     )
 )
-
-;(print '(APPENDALL TESTS))
-;(trace appendall)
-;(appendall '() 1 100)
-;(appendall '((() 0)) 1 111)
-;(appendall '(((1) 1) ((2) 2)) 3 100)
-;(appendall '(((1 2) 3) ((4 5 6 7) 8)) 9 15)
-;(untrace appendall)
