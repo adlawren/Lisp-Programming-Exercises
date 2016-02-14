@@ -75,7 +75,7 @@
 	  (fl-interp-not appl progr)
 	)
         (T
-          '(TODO - IMPLEMENT NON-PRIMITIVE CASE)
+          '(UNKNOWN COMMAND)
         )
       )
     )
@@ -229,6 +229,7 @@
   )
 )
 
+#|
 ; Basic Tests
 (print (fl-interp nil nil))
 (print (fl-interp '(UNKNOWN) nil))
@@ -283,4 +284,4 @@
 (print (fl-interp '(- 1 (* 2 3)) nil))
 (print (fl-interp '(- (+ 1 2) (* 3 4)) nil))
 (print (fl-interp '(+ (- 1 (* 2 3)) (* 4 (- 5 (+ 6 7)))) nil))
-
+|#
