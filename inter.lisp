@@ -1,5 +1,8 @@
 ; An interpreter for a simple functional language.
 ;
+; Test Cases:
+;
+; ...
 (defun fl-interp (appl progr)
   (let
     (
@@ -23,64 +26,148 @@
 	     )
       	  )
 	)
+	(
+	  (equal
+            first-item
+            '-
+          )
+          (- (if (atom (cadr appl))
+	       (cadr appl)
+	       (fl-interp (cadr appl) progr)
+	     )
+	     (if (atom (caddr appl))
+	       (caddr appl)
+	       (fl-interp (caddr appl) progr)
+	     )
+      	  )
+	)
+	(
+	  (equal
+            first-item
+            '*
+          )
+          (* (if (atom (cadr appl))
+	       (cadr appl)
+	       (fl-interp (cadr appl) progr)
+	     )
+	     (if (atom (caddr appl))
+	       (caddr appl)
+	       (fl-interp (caddr appl) progr)
+	     )
+      	  )
+	)	
+	(
+	  (equal
+            first-item
+            '>
+          )
+          (> (if (atom (cadr appl))
+	       (cadr appl)
+	       (fl-interp (cadr appl) progr)
+	     )
+	     (if (atom (caddr appl))
+	       (caddr appl)
+	       (fl-interp (caddr appl) progr)
+	     )
+      	  )
+	)
+	(
+	  (equal
+            first-item
+            '<
+          )
+          (< (if (atom (cadr appl))
+	       (cadr appl)
+	       (fl-interp (cadr appl) progr)
+	     )
+	     (if (atom (caddr appl))
+	       (caddr appl)
+	       (fl-interp (caddr appl) progr)
+	     )
+      	  )
+	)
+	(
+	  (equal
+            first-item
+            '=
+          )
+          (= (if (atom (cadr appl))
+	       (cadr appl)
+	       (fl-interp (cadr appl) progr)
+	     )
+	     (if (atom (caddr appl))
+	       (caddr appl)
+	       (fl-interp (caddr appl) progr)
+	     )
+      	  )
+	)
+	(
+	  (equal
+            first-item
+            'and
+          )
+          (and (if (atom (cadr appl))
+	         (cadr appl)
+	         (fl-interp (cadr appl) progr)
+	       )
+	       (if (atom (caddr appl))
+	         (caddr appl)
+	         (fl-interp (caddr appl) progr)
+	       )
+      	  )
+	)
+	(
+	  (equal
+            first-item
+            'or
+          )
+          (or (if (atom (cadr appl))
+	        (cadr appl)
+	        (fl-interp (cadr appl) progr)
+	      )
+	      (if (atom (caddr appl))
+	        (caddr appl)
+	        (fl-interp (caddr appl) progr)
+	      )
+      	  )
+	)
+	(
+	  (equal
+            first-item
+            'not
+          )
+          (not (if (atom (cadr appl))
+	         (cadr appl)
+	         (fl-interp (cadr appl) progr)
+	       )
+      	  )
+	)
         (T
           '(TODO - IMPLEMENT NON-PRIMITIVE CASE)
         )
       )
     )
   )
-  #|
-    (
-      (let
-        (
-          (first-item (car appl))
-        )
-        (cond
-	  #|
-          (
-            (equal
-              first-item
-              '+
-            )
-            (+ (if (atom (cadr appl))
-	         (cadr appl)
-	         (fl-interp (cadr appl))
-	       )
-	       (if (atom (caddr appl))
-	         (caddr appl)
-	         (fl-interp (caddr appl))
-	       )
-      	    )
-	  )
-	  |#
-	  #|
-	  (
-	    (equal
-              first-item
-              '-
-            )
-            (- (cadr appl) (caddr appl))
-          )
-          (
-            (equal
-              first-item
-              '*
-            )
-            (* (cadr appl) (caddr appl))
-          )
-	  |#
-          (T
-            '(TODO - IMPLEMENT NON-PRIMITIVE CASE)
-          )
-        )
-      ) 
-    )
-  )
-  |#
 )
 
-; Test
-(print '(HELLO WORLD))
+; Helper function which computes the primitive addition function.
+;
+; Test Cases:
+; ...
+(defun fl-interp-add (appl progr)
+  (+ (if (atom (cadr appl))
+       (cadr appl)
+       (fl-interp (cadr appl) progr)
+     )
+     (if (atom (caddr appl))
+       (caddr appl)
+       (fl-interp (caddr appl) progr)
+     )
+  )
+)
+
+; Basic Tests
+(print (fl-interp nil nil))
 (print (fl-interp '(UNKNOWN) nil))
 
 ; Primitive Addition Tests
