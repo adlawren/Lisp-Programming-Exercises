@@ -113,7 +113,5 @@
 (assert (equal T (fl-interp '(number (+ 1 2)) nil)))
 
 ; Miscellaneous Composite Tests
-(trace fl-interp)
 (assert (equal 12 (fl-interp '(if (and (or (- 1 0) (number nil)) (null (atom (1 2)))) (* 3 4) (> 9 0)) nil)))
 (assert (equal T (fl-interp '(if (and nil (null (atom (1 2)))) (* 3 4) (> 9 0)) nil)))
-(untrace fl-interp)

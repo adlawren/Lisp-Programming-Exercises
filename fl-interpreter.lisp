@@ -14,15 +14,11 @@
     )
     (cond
       (
-        (null first-item)
-        first-item
-      )
-      (
-        (equal T first-item)
-        first-item
-      )
-      (
-        (numberp first-item)
+        (or
+          (null first-item)
+          (equal T first-item)
+          (numberp first-item)
+        )
         first-item
       )
       (
