@@ -6,78 +6,340 @@
 (defun fl-interp (appl progr)
   (let
     (
-      (first-item (car appl))
-    )
-    (if (null appl)
-      ()
-      (cond
-        (
-	  (equal
-            first-item
-            '+
-          )
-          (fl-interp-add appl progr)
-	)
-	(
-	  (equal
-            first-item
-            '-
-	  )
-	  (fl-interp-sub appl progr)
-	)
-	(
-	  (equal
-            first-item
-            '*
-          )
-	  (fl-interp-mul appl progr)
-	)	
-	(
-	  (equal
-            first-item
-            '>
-          )
-	  (fl-interp-greater-than appl progr)
-	)
-	(
-	  (equal
-            first-item
-            '<
-          )
-	  (fl-interp-less-than appl progr)
-	)
-	(
-	  (equal
-            first-item
-            '=
-          )
-	  (fl-interp-equals appl progr)
-	)
-	(
-	  (equal
-            first-item
-            'and
-          )
-	  (fl-interp-and appl progr)
-	)
-	(
-	  (equal
-            first-item
-            'or
-          )
-	  (fl-interp-or appl progr)
-	)
-	(
-	  (equal
-            first-item
-            'not
-          )
-	  (fl-interp-not appl progr)
-	)
-        (T
-          '(UNKNOWN COMMAND)
-        )
+      (first-item (if (atom appl)
+		                appl
+		                (car appl)
+		              )
       )
+    )
+    (cond
+      (
+        (null first-item)
+        first-item
+      )
+      (
+        (equal T first-item)
+        first-item
+      )
+      (
+        (numberp first-item)
+        first-item
+      )
+      (
+        (equal
+          first-item
+          'if
+        )
+        (fl-interp-if appl progr)
+      )
+      (
+        (equal
+          first-item
+          'null
+        )
+        (fl-interp-null appl progr)
+      )
+      (
+        (equal
+          first-item
+          'atom
+        )
+        (fl-interp-atom appl progr)
+      )
+      (
+        (equal
+          first-item
+          'eq
+        )
+        (fl-interp-eq appl progr)
+      )
+      (
+        (equal
+          first-item
+          'first
+        )
+        (fl-interp-first appl progr)
+      )
+      (
+        (equal
+          first-item
+          'rest
+        )
+        (fl-interp-rest appl progr)
+      )
+      (
+        (equal
+          first-item
+          'cons
+        )
+        (fl-interp-cons appl progr)
+      )
+      (
+        (equal
+          first-item
+          'equal
+        )
+        (fl-interp-equal appl progr)
+      )
+      (
+        (equal
+          first-item
+          'number
+        )
+        (fl-interp-number appl progr)
+      )
+      (
+        (equal
+          first-item
+          '+
+        )
+        (fl-interp-add appl progr)
+      )
+      (
+        (equal
+          first-item
+          '-
+        )
+        (fl-interp-sub appl progr)
+      )
+      (
+        (equal
+          first-item
+          '*
+        )
+        (fl-interp-mul appl progr)
+      )
+      (
+        (equal
+          first-item
+          '>
+        )
+        (fl-interp-greater-than appl progr)
+      )
+      (
+        (equal
+          first-item
+          '<
+        )
+        (fl-interp-less-than appl progr)
+      )
+      (
+        (equal
+          first-item
+          '=
+        )
+        (fl-interp-equals appl progr)
+      )
+      (
+        (equal
+          first-item
+          'and
+        )
+        (fl-interp-and appl progr)
+      )
+      (
+        (equal
+          first-item
+          'or
+        )
+        (fl-interp-or appl progr)
+      )
+      (
+        (equal
+          first-item
+          'not
+        )
+        (fl-interp-not appl progr)
+      )
+      (T
+        '(UNKNOWN COMMAND)
+      )
+    )
+  )
+)
+
+; Helper function which computes the primitive if function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-if (appl progr)
+  (if (equal T (fl-interp (cadr appl) progr))
+      (fl-interp (caddr appl) progr)
+      (fl-interp (cadddr appl) progr)
+  )
+)
+
+; Helper function which computes the primitive null function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-null (appl progr)
+  (if (atom (cadr appl))
+    (null (cadr appl))
+    (null (fl-interp (cadr appl) progr))
+  )
+)
+
+; Helper function which computes the primitive atom function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-atom (appl progr)
+  (if (atom (cadr appl))
+    T
+    (cond
+      (
+        (or
+          (null (caadr appl))
+          (numberp (caadr appl))
+        )
+        nil
+      )
+      (T (atom (fl-interp (cadr appl) progr)))
+    )
+  )
+)
+
+; Helper function which computes the primitive eq function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-eq (appl progr)
+  (eq (if (atom (cadr appl))
+       (cadr appl)
+       (fl-interp (cadr appl) progr)
+     )
+     (if (atom (caddr appl))
+       (caddr appl)
+       (fl-interp (caddr appl) progr)
+     )
+  )
+)
+
+; Helper function which computes the primitive first function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-first (appl progr)
+  (if (atom appl)
+    nil
+    (cond
+      (
+        (or
+          (null (caadr appl))
+          (numberp (caadr appl))
+        )
+        (caadr appl)
+      )
+      (T (fl-interp-first (fl-interp (cadr appl) progr) progr))
+    )
+  )
+)
+
+; Helper function which computes the primitive rest function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-rest (appl progr)
+  (if (atom appl)
+    nil
+    (cond
+      (
+        (or
+          (null (caadr appl))
+          (numberp (caadr appl))
+        )
+        (cdadr appl)
+      )
+      (T (fl-interp-rest (fl-interp (cadr appl) progr) progr))
+    )
+  )
+)
+
+; Helper function which computes the primitive cons function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-cons (appl progr)
+  (cons
+    (if (atom (cadr appl))
+      (cadr appl)
+      (fl-interp (cadr appl) progr)
+    )
+    (cond
+      (
+        (or
+          (null (caaddr appl))
+          (numberp (caaddr appl))
+        )
+        (caddr appl)
+      )
+      (T (fl-interp (caddr appl) progr))
+    )
+  )
+)
+
+; Helper function which computes the primitive equal function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-equal (appl progr)
+  (equal
+    (cond
+      (
+        (or
+          (null (cadr appl))
+          (numberp (cadr appl))
+          (null (caadr appl))
+          (numberp (caadr appl))
+        )
+        (cadr appl)
+      )
+      (T (fl-interp (cadr appl) progr))
+    )
+    (cond
+      (
+        (or
+          (null (caddr appl))
+          (numberp (caddr appl))
+          (null (caaddr appl))
+          (numberp (caaddr appl))
+        )
+        (caddr appl)
+      )
+      (T (fl-interp (caddr appl) progr))
+    )
+  )
+)
+
+; Helper function which computes the primitive number function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-interp-number (appl progr)
+  (numberp
+    (cond
+      (
+        (atom (cadr appl))
+        (cadr appl)
+      )
+      (
+        (or
+          (null (caadr appl))
+          (numberp (caadr appl))
+        )
+        (cadr appl)
+      )
+      (T (fl-interp (cadr appl) progr))
     )
   )
 )
@@ -229,59 +491,17 @@
   )
 )
 
-#|
-; Basic Tests
-(print (fl-interp nil nil))
-(print (fl-interp '(UNKNOWN) nil))
-
-; Primitive Addition Tests
-(print (fl-interp '(+ 1 2) nil))
-(print (fl-interp '(+ 1 (+ 2 3)) nil))
-(print (fl-interp '(+ (+ 1 2) (+ 3 4)) nil))
-(print (fl-interp '(+ (+ 1 (+ 2 3)) (+ 4 (+ 5 (+ 6 7)))) nil))
-
-; Primitive Subtraction Tests
-(print (fl-interp '(- 1 2) nil))
-(print (fl-interp '(- 1 (- 2 3)) nil))
-(print (fl-interp '(- (- 1 2) (- 3 4)) nil))
-(print (fl-interp '(- (- 1 (- 2 3)) (- 4 (- 5 (- 6 7)))) nil))
-
-; Primitive Multiplication Tests
-(print (fl-interp '(* 1 2) nil))
-(print (fl-interp '(* 1 (* 2 3)) nil))
-(print (fl-interp '(* (* 1 2) (* 3 4)) nil))
-(print (fl-interp '(* (* 1 (* 2 3)) (* 4 (* 5 (* 6 7)))) nil))
-
-; Primitive Greater-Than Tests
-(print (fl-interp '(> 1 2) nil))
-(print (fl-interp '(> 2 1) nil))
-
-; Primitive Less-Than Tests
-(print (fl-interp '(< 1 2) nil))
-(print (fl-interp '(< 2 1) nil))
-
-; Primitive Equals Tests
-(print (fl-interp '(= 1 1) nil))
-(print (fl-interp '(= 1 2) nil))
-
-; Primitive And Tests
-(print (fl-interp '(and nil nil) nil))
-(print (fl-interp '(and nil T) nil))
-(print (fl-interp '(and T nil) nil))
-(print (fl-interp '(and T T) nil))
-
-; Primitive Or Tests
-(print (fl-interp '(or nil nil) nil))
-(print (fl-interp '(or nil T) nil))
-(print (fl-interp '(or T nil) nil))
-(print (fl-interp '(or T T) nil))
-
-; Primitive Not Tests
-(print (fl-interp '(not nil) nil))
-(print (fl-interp '(not T) nil))
-
-; Composite Primitive Arithmetic Tests
-(print (fl-interp '(- 1 (* 2 3)) nil))
-(print (fl-interp '(- (+ 1 2) (* 3 4)) nil))
-(print (fl-interp '(+ (- 1 (* 2 3)) (* 4 (- 5 (+ 6 7)))) nil))
-|#
+; Helper function which determines whether or not the given argument is a function application.
+;
+; Test Cases:
+;
+; ...
+(defun is-command (X)
+  (if (or
+        (null (car X))
+        (numberp (car X))
+      )
+    nil
+    T
+  )
+)
