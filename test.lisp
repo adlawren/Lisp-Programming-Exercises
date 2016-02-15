@@ -236,12 +236,21 @@
   )
 )
 
-; TODO: fix
 (assert
   (equal
     3
     (fl-interp
       '(count (1 2 3))
+      '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
+    )
+  )
+)
+
+(assert
+  (equal
+    10
+    (fl-interp
+      '(count (1 2 3 4 5 6 7 8 9 10))
       '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
     )
   )

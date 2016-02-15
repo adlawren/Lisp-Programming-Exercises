@@ -237,7 +237,7 @@
         )
         (cdadr E)
       )
-      (T (fl-interp-rest (fl-interp (cadr E) P) P))
+      (T (cdr (fl-interp (cadr E) P)))
     )
   )
 )
