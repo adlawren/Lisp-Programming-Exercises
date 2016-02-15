@@ -121,155 +121,19 @@
 (assert (equal '(test-fn X = (+ 1 X)) (fl-get-command '(test-fn 1) '((test-fn X = (+ 1 X))))))
 (assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-command '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
 
-; Experiments:
+; User-Defined Function Header Requisition Tests
+(assert (equal '(test-fn X Y) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil)))
 
-(defun fl-get-function-header (P H)
-  (cond
-    (
-      (or
-        (null P)
-        (equal '= (car P))
-      )
-      H
-    )
-    (T
-      (fl-get-function-header (cdr P) (append H (list (car P))))
-    )
-  )
-)
+; User-Defined Function Body Requisition Tests
+(assert (equal '(+ X Y) (fl-get-function-body '(test-fn X Y = (+ X Y)))))
 
-(fl-get-function-header '(test-fn X Y = (+ X Y)) nil)
+; User-Defined Function Parameter Value Requisition Tests
+(assert (equal 1 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) 'X)))
+(assert (equal 2 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) 'Y)))
+(assert (equal nil (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) 'Z)))
 
-(defun fl-get-function-body (P)
-  (cond
-    (
-      (null P)
-      nil
-    )
-    (
-      (equal '= (car P))
-      (cadr P)
-    )
-    (T
-      (fl-get-function-body (cdr P))
-    )
-  )
-)
-
-(fl-get-function-body '(test-fn X Y = (+ X Y)))
-
-(defun get-parameter (M P)
-  (cond
-    ((null M) nil)
-    (
-      (equal P (caar M))
-      (cadar M)
-    )
-    (T (get-parameter (cdr M) P))
-  )
-)
-
-; There's a bug here, the first items of E and P are taken into account when they should not be
-(defun get-parameter-v2 (E P V)
-  (cond
-    (
-      (or
-        (null E)
-        (null P)
-        (atom E)
-        (atom P)
-        (equal '= (car P))
-      )
-      nil
-    )
-    (
-      (equal (car P) V)
-      (car E)
-    )
-    (T
-      (get-parameter-v2 (cdr E) (cdr P) V)
-    )
-  )
-)
-
-(defun get-parameter-v3 (E H V)
-  (cond
-    (
-      (or
-        (null E)
-        (null H)
-        (atom E)
-        (atom H)
-      )
-      nil
-    )
-    (
-      (equal (car H) V)
-      (car E)
-    )
-    (T (get-parameter-v3 (cdr E) (cdr H) V))
-  )
-)
-
-(defun fl-get-program-application (P V A)
-  (if (null P)
-    A
-    (cond
-      (
-        (atom (car P))
-        (if (get-parameter V (car P))
-          (fl-get-program-application (cdr P) V (append A (list (get-parameter V (car P)))))
-          (fl-get-program-application (cdr P) V (append A (list (car P))))
-        )
-      )
-      (T
-        (append
-          A
-          (list (fl-get-program-application (car P) V nil))
-          (fl-get-program-application (cdr P) V nil)
-        )
-      )
-    )
-  )
-)
-
-(defun fl-get-program-application-v2 (E H P A)
-  (if (null P)
-    A
-    (cond
-      (
-        (atom (car P))
-        (if (get-parameter-v3 E H (car P))
-          (fl-get-program-application-v2 E H (cdr P) (append A (list (get-parameter-v3 E H (car P)))))
-          (fl-get-program-application-v2 E H (cdr P) (append A (list (car P))))
-        )
-      )
-      (T
-        (append
-          A
-          (list (fl-get-program-application-v2 E H (car P) nil))
-          (fl-get-program-application-v2 E H (cdr P) nil)
-        )
-      )
-    )
-  )
-)
-
-(get-parameter-v3 '(test-fn 1 2) '(test-fn X Y = (+ X Y)) 'X)
-(get-parameter-v3 '(test-fn 1 2) '(test-fn X Y = (+ X Y)) 'Y)
-(get-parameter-v3 '(test-fn 1 2) '(test-fn X Y = (+ X Y)) 'Z)
-
-; ...
-(assert (equal nil (fl-get-program-application nil nil nil)))
-(assert (equal '(+ 1 1) (fl-get-program-application '(+ 1 X) '((X 1)) nil)))
-(assert (equal '(+ 1 (+ 1 1)) (fl-get-program-application '(+ 1 (+ 1 X)) '((X 1)) nil)))
-(assert (equal '(+ 1 (+ 1 (+ 1 1))) (fl-get-program-application '(+ 1 (+ 1 (+ 1 X))) '((X 1)) nil)))
-(assert (equal '(test-fn 1 (+ 1 1) 1) (fl-get-program-application '(test-fn 1 (+ 1 X) X) '((X 1)) nil)))
-
-; ...
-(trace fl-get-program-application-v2)
-(assert (equal nil (fl-get-program-application-v2 nil nil nil nil)))
-(assert (equal '(+ 1 2) (fl-get-program-application-v2 '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) (fl-get-function-body '(test-fn X Y = (+ X Y))) nil)))
-(assert (equal '(+ 1 (+ 1 2)) (fl-get-program-application-v2 '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X (+ X Y))) nil) (fl-get-function-body '(test-fn X Y = (+ X (+ X Y)))) nil)))
-(assert (equal '(+ 1 (+ 2 (+ 1 2))) (fl-get-program-application-v2 '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X (+ Y (+ X Y)))) nil) (fl-get-function-body '(test-fn X Y = (+ X (+ Y (+ X Y))))) nil)))
-(untrace fl-get-program-application-v2)
+; User-Defined Function Expansion Requisition Tests
+(assert (equal nil (fl-get-program-application nil nil nil nil)))
+(assert (equal '(+ 1 2) (fl-get-program-application '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) (fl-get-function-body '(test-fn X Y = (+ X Y))) nil)))
+(assert (equal '(+ 1 (+ 1 2)) (fl-get-program-application '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X (+ X Y))) nil) (fl-get-function-body '(test-fn X Y = (+ X (+ X Y)))) nil)))
+(assert (equal '(+ 1 (+ 2 (+ 1 2))) (fl-get-program-application '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X (+ Y (+ X Y)))) nil) (fl-get-function-body '(test-fn X Y = (+ X (+ Y (+ X Y))))) nil)))

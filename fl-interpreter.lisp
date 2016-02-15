@@ -501,3 +501,95 @@
     (T (fl-get-command E (cdr P)))
   )
 )
+
+; Helper function which retrieves the header associated with a user-defined function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-get-function-header (P H)
+  (cond
+    (
+      (or
+        (null P)
+        (equal '= (car P))
+      )
+      H
+    )
+    (T
+      (fl-get-function-header (cdr P) (append H (list (car P))))
+    )
+  )
+)
+
+; Helper function which retrieves the body associated with a user-defined function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-get-function-body (P)
+  (cond
+    (
+      (null P)
+      nil
+    )
+    (
+      (equal '= (car P))
+      (cadr P)
+    )
+    (T
+      (fl-get-function-body (cdr P))
+    )
+  )
+)
+
+; Helper function which retrieves the value of a parameter from an application of a user-defined function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-get-function-parameter-value (E H V)
+  (cond
+    (
+      (or
+        (null E)
+        (null H)
+        (atom E)
+        (atom H)
+      )
+      nil
+    )
+    (
+      (equal (car H) V)
+      (car E)
+    )
+    (T (fl-get-function-parameter-value (cdr E) (cdr H) V))
+  )
+)
+
+; Helper function which computes the expanded functional application of a given user-defined function, given the original application of the function and the header & body of the function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-get-program-application (E H P A)
+  (if (null P)
+    A
+    (cond
+      (
+        (atom (car P))
+        (if (fl-get-function-parameter-value E H (car P))
+          (fl-get-program-application E H (cdr P) (append A (list (fl-get-function-parameter-value E H (car P)))))
+          (fl-get-program-application E H (cdr P) (append A (list (car P))))
+        )
+      )
+      (T
+        (append
+          A
+          (list (fl-get-program-application E H (car P) nil))
+          (fl-get-program-application E H (cdr P) nil)
+        )
+      )
+    )
+  )
+)
