@@ -4,152 +4,139 @@
 ;
 ; ...
 (defun fl-interp (appl progr)
-  (let
+  (cond
     (
-      (first-item (if (atom appl)
-		                appl
-		                (car appl)
-		              )
-      )
+      (atom appl)
+      appl
     )
-    (cond
-      (
-        (or
-          (null first-item)
-          (equal T first-item)
-          (numberp first-item)
-        )
-        first-item
+    (
+      (equal
+        (car appl)
+        'if
       )
-      (
-        (equal
-          first-item
-          'if
-        )
-        (fl-interp-if appl progr)
+      (fl-interp-if appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'null
       )
-      (
-        (equal
-          first-item
-          'null
-        )
-        (fl-interp-null appl progr)
+      (fl-interp-null appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'atom
       )
-      (
-        (equal
-          first-item
-          'atom
-        )
-        (fl-interp-atom appl progr)
+      (fl-interp-atom appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'eq
       )
-      (
-        (equal
-          first-item
-          'eq
-        )
-        (fl-interp-eq appl progr)
+      (fl-interp-eq appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'first
       )
-      (
-        (equal
-          first-item
-          'first
-        )
-        (fl-interp-first appl progr)
+      (fl-interp-first appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'rest
       )
-      (
-        (equal
-          first-item
-          'rest
-        )
-        (fl-interp-rest appl progr)
+      (fl-interp-rest appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'cons
       )
-      (
-        (equal
-          first-item
-          'cons
-        )
-        (fl-interp-cons appl progr)
+      (fl-interp-cons appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'equal
       )
-      (
-        (equal
-          first-item
-          'equal
-        )
-        (fl-interp-equal appl progr)
+      (fl-interp-equal appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'number
       )
-      (
-        (equal
-          first-item
-          'number
-        )
-        (fl-interp-number appl progr)
+      (fl-interp-number appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        '+
       )
-      (
-        (equal
-          first-item
-          '+
-        )
-        (fl-interp-add appl progr)
+      (fl-interp-add appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        '-
       )
-      (
-        (equal
-          first-item
-          '-
-        )
-        (fl-interp-sub appl progr)
+      (fl-interp-sub appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        '*
       )
-      (
-        (equal
-          first-item
-          '*
-        )
-        (fl-interp-mul appl progr)
+      (fl-interp-mul appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        '>
       )
-      (
-        (equal
-          first-item
-          '>
-        )
-        (fl-interp-greater-than appl progr)
+      (fl-interp-greater-than appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        '<
       )
-      (
-        (equal
-          first-item
-          '<
-        )
-        (fl-interp-less-than appl progr)
+      (fl-interp-less-than appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        '=
       )
-      (
-        (equal
-          first-item
-          '=
-        )
-        (fl-interp-equals appl progr)
+      (fl-interp-equals appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'and
       )
-      (
-        (equal
-          first-item
-          'and
-        )
-        (fl-interp-and appl progr)
+      (fl-interp-and appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'or
       )
-      (
-        (equal
-          first-item
-          'or
-        )
-        (fl-interp-or appl progr)
+      (fl-interp-or appl progr)
+    )
+    (
+      (equal
+        (car appl)
+        'not
       )
-      (
-        (equal
-          first-item
-          'not
-        )
-        (fl-interp-not appl progr)
-      )
-      (T
-        '(UNKNOWN COMMAND)
-      )
+      (fl-interp-not appl progr)
+    )
+    (T
+      (fl-parse-command appl (fl-get-command appl progr))
     )
   )
 )
@@ -205,14 +192,9 @@
 ;
 ; ...
 (defun fl-interp-eq (appl progr)
-  (eq (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
-     )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
-     )
+  (eq
+    (fl-interp (cadr appl) progr)
+    (fl-interp (caddr appl) progr)
   )
 )
 
@@ -487,17 +469,42 @@
   )
 )
 
-; Helper function which determines whether or not the given argument is a function application.
+; Helper function which determines whether or not the given argument is a user defined function.
 ;
 ; Test Cases:
 ;
 ; ...
-(defun is-command (X)
-  (if (or
-        (null (car X))
-        (numberp (car X))
-      )
-    nil
-    T
+(defun fl-parse-command (appl def)
+  (if (null def)
+    appl
+    nil ;TODO: implement this
   )
 )
+
+; Helper function which determines whether or not the given argument is a user defined function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-get-command (appl progr)
+  (cond
+    (
+      (null progr)
+      nil
+    )
+    (
+      (equal (car appl) (caar progr))
+      (car progr)
+    )
+    (T (fl-get-command appl (cdr progr)))
+  )
+)
+
+#| TODO: remove; test
+(trace fl-get-command)
+(fl-get-command nil nil)
+(fl-get-command '(1 2 3) nil)
+(fl-get-command '(test-fn 1) '((test-fn X = (+ 1 X))))
+(fl-get-command '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))
+(untrace fl-get-command)
+|#

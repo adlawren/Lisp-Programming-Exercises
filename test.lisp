@@ -2,7 +2,7 @@
 
 ; Basic Tests
 (assert (equal nil (fl-interp nil nil)))
-(assert (equal '(UNKNOWN COMMAND) (fl-interp '(RANDOM-UNIMPLEMENTED-COMMAND) nil)))
+(assert (equal '(RANDOM-UNIMPLEMENTED-COMMAND) (fl-interp '(RANDOM-UNIMPLEMENTED-COMMAND) nil)))
 
 ; Primitive Addition Tests
 (assert (equal 3 (fl-interp '(+ 1 2) nil)))
@@ -56,9 +56,8 @@
 (assert (equal nil (fl-interp '(not T) nil)))
 
 ; Primitive If Tests
-(assert (equal 1 (fl-interp '(if (= 1 1) (1) (2)) nil)))
-(assert (equal 2 (fl-interp '(if (= 1 2) (1) (2)) nil)))
-
+(assert (equal 1 (fl-interp '(if (= 1 1) 1 2) nil)))
+(assert (equal 2 (fl-interp '(if (= 1 2) 1 2) nil)))
 
 ; Primitive Null Tests
 (assert (equal T (fl-interp '(null nil) nil)))
@@ -76,9 +75,9 @@
 ; Primitive Eq Tests
 (assert (equal T (fl-interp '(eq 1 1) nil)))
 (assert (equal nil (fl-interp '(eq 1 2) nil)))
-(assert (equal T (fl-interp '(eq (1) (1)) nil)))
+(assert (equal nil (fl-interp '(eq (1) (1)) nil)))
 (assert (equal nil (fl-interp '(eq (1) (2)) nil)))
-(assert (equal T (fl-interp '(eq (1 2) (1 2)) nil)))
+(assert (equal nil (fl-interp '(eq (1 2) (1 2)) nil)))
 (assert (equal nil (fl-interp '(eq (1 2) (3 4)) nil)))
 
 ; Primitive First Tests
