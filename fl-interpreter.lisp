@@ -136,7 +136,7 @@
       (fl-interp-not E P)
     )
     (T
-      (fl-parse-command E (fl-get-command E P))
+      (fl-parse-user-defined-function E P (fl-get-function-definition E P))
     )
   )
 )
@@ -476,19 +476,7 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-parse-command (E def)
-  (if (null def)
-    E
-    nil ;TODO: implement this
-  )
-)
-
-; Helper function which determines whether or not the given argument is a user defined function.
-;
-; Test Cases:
-;
-; ...
-(defun fl-get-command (E P)
+(defun fl-get-function-definition (E P)
   (cond
     (
       (null P)
@@ -572,24 +560,44 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-get-program-application (E H P A)
-  (if (null P)
+(defun fl-get-program-application (E H B A)
+  (if (null B)
     A
     (cond
       (
-        (atom (car P))
-        (if (fl-get-function-parameter-value E H (car P))
-          (fl-get-program-application E H (cdr P) (append A (list (fl-get-function-parameter-value E H (car P)))))
-          (fl-get-program-application E H (cdr P) (append A (list (car P))))
+        (atom (car B))
+        (if (fl-get-function-parameter-value E H (car B))
+          (fl-get-program-application E H (cdr B) (append A (list (fl-get-function-parameter-value E H (car B)))))
+          (fl-get-program-application E H (cdr B) (append A (list (car B))))
         )
       )
       (T
         (append
           A
-          (list (fl-get-program-application E H (car P) nil))
-          (fl-get-program-application E H (cdr P) nil)
+          (list (fl-get-program-application E H (car B) nil))
+          (fl-get-program-application E H (cdr B) nil)
         )
       )
+    )
+  )
+)
+
+; Helper function which determines whether or not the given argument is a user defined function.
+;
+; Test Cases:
+;
+; ...
+(defun fl-parse-user-defined-function (E P D)
+  (if (null D)
+    E
+    (fl-interp
+      (fl-get-program-application
+        E
+        (fl-get-function-header D nil)
+        (fl-get-function-body D)
+        nil
+      )
+      P
     )
   )
 )

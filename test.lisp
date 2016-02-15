@@ -116,10 +116,10 @@
 (assert (equal T (fl-interp '(if (and nil (null (atom (1 2)))) (* 3 4) (> 9 0)) nil)))
 
 ; Program Definition Retrieval Tests
-(assert (equal nil (fl-get-command nil nil)))
-(assert (equal nil (fl-get-command '(1 2 3) nil)))
-(assert (equal '(test-fn X = (+ 1 X)) (fl-get-command '(test-fn 1) '((test-fn X = (+ 1 X))))))
-(assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-command '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
+(assert (equal nil (fl-get-function-definition nil nil)))
+(assert (equal nil (fl-get-function-definition '(1 2 3) nil)))
+(assert (equal '(test-fn X = (+ 1 X)) (fl-get-function-definition '(test-fn 1) '((test-fn X = (+ 1 X))))))
+(assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-function-definition '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
 
 ; User-Defined Function Header Requisition Tests
 (assert (equal '(test-fn X Y) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil)))
@@ -134,6 +134,115 @@
 
 ; User-Defined Function Expansion Requisition Tests
 (assert (equal nil (fl-get-program-application nil nil nil nil)))
-(assert (equal '(+ 1 2) (fl-get-program-application '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) (fl-get-function-body '(test-fn X Y = (+ X Y))) nil)))
-(assert (equal '(+ 1 (+ 1 2)) (fl-get-program-application '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X (+ X Y))) nil) (fl-get-function-body '(test-fn X Y = (+ X (+ X Y)))) nil)))
-(assert (equal '(+ 1 (+ 2 (+ 1 2))) (fl-get-program-application '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X (+ Y (+ X Y)))) nil) (fl-get-function-body '(test-fn X Y = (+ X (+ Y (+ X Y))))) nil)))
+
+(assert
+  (equal
+    '(+ 1 2)
+    (fl-get-program-application
+      '(test-fn 1 2)
+      (fl-get-function-header
+        '(test-fn X Y = (+ X Y))
+        nil
+      )
+      (fl-get-function-body
+        '(test-fn X Y = (+ X Y))
+      )
+      nil
+    )
+  )
+)
+
+(assert
+  (equal
+    '(+ 1 (+ 1 2))
+    (fl-get-program-application
+      '(test-fn 1 2)
+      (fl-get-function-header
+        '(test-fn X Y = (+ X (+ X Y)))
+        nil
+      )
+      (fl-get-function-body
+        '(test-fn X Y = (+ X (+ X Y)))
+      )
+      nil
+    )
+  )
+)
+
+(assert
+  (equal
+    '(+ 1 (+ 2 (+ 1 2)))
+    (fl-get-program-application
+      '(test-fn 1 2)
+      (fl-get-function-header
+        '(test-fn X Y = (+ X (+ Y (+ X Y))))
+        nil
+      )
+      (fl-get-function-body
+        '(test-fn X Y = (+ X (+ Y (+ X Y))))
+      )
+      nil
+    )
+  )
+)
+
+(assert
+  (equal
+    '(if (null (1)) 0 (+ 1 (count (rest (1)))))
+    (fl-get-program-application
+      '(count (1))
+      (fl-get-function-header
+        '(count X = (if (null X) 0 (+ 1 (count (rest X)))))
+        nil
+      )
+      (fl-get-function-body
+        '(count X = (if (null X) 0 (+ 1 (count (rest X)))))
+      )
+      nil
+    )
+  )
+)
+
+; User-Defined Function Evaluation Tests
+(assert
+  (equal
+    3
+    (fl-interp
+      '(test-fn 1 2)
+      '(
+        (test-fn X Y = (+ X Y))
+      )
+    )
+  )
+)
+
+(assert
+  (equal
+    1
+    (fl-interp
+      '(count (1))
+      '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
+    )
+  )
+)
+
+(assert
+  (equal
+    2
+    (fl-interp
+      '(count (1 2))
+      '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
+    )
+  )
+)
+
+; TODO: fix
+(assert
+  (equal
+    3
+    (fl-interp
+      '(count (1 2 3))
+      '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
+    )
+  )
+)
