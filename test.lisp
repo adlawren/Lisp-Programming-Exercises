@@ -255,3 +255,34 @@
     )
   )
 )
+
+#| TODO: fixme
+(assert
+  (equal
+    '(10 9 8 7 6 5 4 3 2 1)
+    (fl-interp
+      '(test-fn (1 2 3 4 5 6 7 8 9 10))
+      '((test-fn X = (if (null X) nil (cons (car X) (reverse (cdr X))))))
+    )
+  )
+)
+
+(assert
+  (equal
+    '(3 2 1)
+    (fl-interp
+      '(reverse (1 2 3))
+      '(
+        (reverse X =  (if (null X)
+                           nil
+                           (append (reverse rest X))
+                                   (cons (first X) nil)))
+        (append X Y = (if (null X)
+                            Y
+                            (cons (first X) (append (rest X) Y)))
+        )
+      )
+    )
+  )
+)
+|#

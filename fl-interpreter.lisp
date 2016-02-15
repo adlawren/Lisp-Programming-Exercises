@@ -486,7 +486,7 @@
       (equal (car E) (caar P))
       (car P)
     )
-    (T (fl-get-command E (cdr P)))
+    (T (fl-get-function-definition E (cdr P)))
   )
 )
 
