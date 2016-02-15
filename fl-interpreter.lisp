@@ -3,153 +3,155 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp (appl progr)
+(defun fl-interp (E P)
   (cond
     (
-      (atom appl)
-      appl
+      (atom E)
+      E
     )
     (
       (equal
-        (car appl)
+        (car E)
         'if
       )
-      (fl-interp-if appl progr)
+      (fl-interp-if E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'null
       )
-      (fl-interp-null appl progr)
+      (fl-interp-null E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'atom
       )
-      (fl-interp-atom appl progr)
+      (fl-interp-atom E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'eq
       )
-      (fl-interp-eq appl progr)
+      (fl-interp-eq E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'first
       )
-      (fl-interp-first appl progr)
+      (fl-interp-first E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'rest
       )
-      (fl-interp-rest appl progr)
+      (fl-interp-rest E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'cons
       )
-      (fl-interp-cons appl progr)
+      (fl-interp-cons E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'equal
       )
-      (fl-interp-equal appl progr)
+      (fl-interp-equal E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'number
       )
-      (fl-interp-number appl progr)
+      (fl-interp-number E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         '+
       )
-      (fl-interp-add appl progr)
+      (fl-interp-add E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         '-
       )
-      (fl-interp-sub appl progr)
+      (fl-interp-sub E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         '*
       )
-      (fl-interp-mul appl progr)
+      (fl-interp-mul E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         '>
       )
-      (fl-interp-greater-than appl progr)
+      (fl-interp-greater-than E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         '<
       )
-      (fl-interp-less-than appl progr)
+      (fl-interp-less-than E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         '=
       )
-      (fl-interp-equals appl progr)
+      (fl-interp-equals E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'and
       )
-      (fl-interp-and appl progr)
+      (fl-interp-and E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'or
       )
-      (fl-interp-or appl progr)
+      (fl-interp-or E P)
     )
     (
       (equal
-        (car appl)
+        (car E)
         'not
       )
-      (fl-interp-not appl progr)
+      (fl-interp-not E P)
     )
     (T
-      (fl-parse-command appl (fl-get-command appl progr))
+      (fl-parse-command E (fl-get-command E P))
     )
   )
 )
+
+; ...
 
 ; Helper function which computes the primitive if function.
 ;
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-if (appl progr)
-  (if (equal T (fl-interp (cadr appl) progr))
-      (fl-interp (caddr appl) progr)
-      (fl-interp (cadddr appl) progr)
+(defun fl-interp-if (E P)
+  (if (equal T (fl-interp (cadr E) P))
+      (fl-interp (caddr E) P)
+      (fl-interp (cadddr E) P)
   )
 )
 
@@ -158,10 +160,10 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-null (appl progr)
-  (if (atom (cadr appl))
-    (null (cadr appl))
-    (null (fl-interp (cadr appl) progr))
+(defun fl-interp-null (E P)
+  (if (atom (cadr E))
+    (null (cadr E))
+    (null (fl-interp (cadr E) P))
   )
 )
 
@@ -170,18 +172,18 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-atom (appl progr)
-  (if (atom (cadr appl))
+(defun fl-interp-atom (E P)
+  (if (atom (cadr E))
     T
     (cond
       (
         (or
-          (null (caadr appl))
-          (numberp (caadr appl))
+          (null (caadr E))
+          (numberp (caadr E))
         )
         nil
       )
-      (T (atom (fl-interp (cadr appl) progr)))
+      (T (atom (fl-interp (cadr E) P)))
     )
   )
 )
@@ -191,10 +193,10 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-eq (appl progr)
+(defun fl-interp-eq (E P)
   (eq
-    (fl-interp (cadr appl) progr)
-    (fl-interp (caddr appl) progr)
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -203,18 +205,18 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-first (appl progr)
-  (if (atom appl)
+(defun fl-interp-first (E P)
+  (if (atom E)
     nil
     (cond
       (
         (or
-          (null (caadr appl))
-          (numberp (caadr appl))
+          (null (caadr E))
+          (numberp (caadr E))
         )
-        (caadr appl)
+        (caadr E)
       )
-      (T (fl-interp-first (fl-interp (cadr appl) progr) progr))
+      (T (fl-interp-first (fl-interp (cadr E) P) P))
     )
   )
 )
@@ -224,18 +226,18 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-rest (appl progr)
-  (if (atom appl)
+(defun fl-interp-rest (E P)
+  (if (atom E)
     nil
     (cond
       (
         (or
-          (null (caadr appl))
-          (numberp (caadr appl))
+          (null (caadr E))
+          (numberp (caadr E))
         )
-        (cdadr appl)
+        (cdadr E)
       )
-      (T (fl-interp-rest (fl-interp (cadr appl) progr) progr))
+      (T (fl-interp-rest (fl-interp (cadr E) P) P))
     )
   )
 )
@@ -245,21 +247,21 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-cons (appl progr)
+(defun fl-interp-cons (E P)
   (cons
-    (if (atom (cadr appl))
-      (cadr appl)
-      (fl-interp (cadr appl) progr)
+    (if (atom (cadr E))
+      (cadr E)
+      (fl-interp (cadr E) P)
     )
     (cond
       (
         (or
-          (null (caaddr appl))
-          (numberp (caaddr appl))
+          (null (caaddr E))
+          (numberp (caaddr E))
         )
-        (caddr appl)
+        (caddr E)
       )
-      (T (fl-interp (caddr appl) progr))
+      (T (fl-interp (caddr E) P))
     )
   )
 )
@@ -269,31 +271,31 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-equal (appl progr)
+(defun fl-interp-equal (E P)
   (equal
     (cond
       (
         (or
-          (null (cadr appl))
-          (numberp (cadr appl))
-          (null (caadr appl))
-          (numberp (caadr appl))
+          (null (cadr E))
+          (numberp (cadr E))
+          (null (caadr E))
+          (numberp (caadr E))
         )
-        (cadr appl)
+        (cadr E)
       )
-      (T (fl-interp (cadr appl) progr))
+      (T (fl-interp (cadr E) P))
     )
     (cond
       (
         (or
-          (null (caddr appl))
-          (numberp (caddr appl))
-          (null (caaddr appl))
-          (numberp (caaddr appl))
+          (null (caddr E))
+          (numberp (caddr E))
+          (null (caaddr E))
+          (numberp (caaddr E))
         )
-        (caddr appl)
+        (caddr E)
       )
-      (T (fl-interp (caddr appl) progr))
+      (T (fl-interp (caddr E) P))
     )
   )
 )
@@ -303,21 +305,21 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-number (appl progr)
+(defun fl-interp-number (E P)
   (numberp
     (cond
       (
-        (atom (cadr appl))
-        (cadr appl)
+        (atom (cadr E))
+        (cadr E)
       )
       (
         (or
-          (null (caadr appl))
-          (numberp (caadr appl))
+          (null (caadr E))
+          (numberp (caadr E))
         )
-        (cadr appl)
+        (cadr E)
       )
-      (T (fl-interp (cadr appl) progr))
+      (T (fl-interp (cadr E) P))
     )
   )
 )
@@ -327,14 +329,14 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-add (appl progr)
-  (+ (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-add (E P)
+  (+ (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
+     (if (atom (caddr E))
+       (caddr E)
+       (fl-interp (caddr E) P)
      )
   )
 )
@@ -344,14 +346,14 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-sub (appl progr)
-  (- (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-sub (E P)
+  (- (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
+     (if (atom (caddr E))
+       (caddr E)
+       (fl-interp (caddr E) P)
      )
   )
 )
@@ -360,14 +362,14 @@
 ;
 ; Test Cases:
 ; ...
-(defun fl-interp-mul (appl progr)
-  (* (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-mul (E P)
+  (* (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
+     (if (atom (caddr E))
+       (caddr E)
+       (fl-interp (caddr E) P)
      )
   )
 )
@@ -377,14 +379,14 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-greater-than (appl progr)
-  (> (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-greater-than (E P)
+  (> (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
+     (if (atom (caddr E))
+       (caddr E)
+       (fl-interp (caddr E) P)
      )
   )
 )
@@ -394,14 +396,14 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-less-than (appl progr)
-  (< (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-less-than (E P)
+  (< (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
+     (if (atom (caddr E))
+       (caddr E)
+       (fl-interp (caddr E) P)
      )
   )
 )
@@ -410,14 +412,14 @@
 ;
 ; Test Cases:
 ; ...
-(defun fl-interp-equals (appl progr)
-  (= (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-equals (E P)
+  (= (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
-     (if (atom (caddr appl))
-       (caddr appl)
-       (fl-interp (caddr appl) progr)
+     (if (atom (caddr E))
+       (caddr E)
+       (fl-interp (caddr E) P)
      )
   )
 )
@@ -427,14 +429,14 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-and (appl progr)
-  (and (if (atom (cadr appl))
-         (cadr appl)
-         (fl-interp (cadr appl) progr)
+(defun fl-interp-and (E P)
+  (and (if (atom (cadr E))
+         (cadr E)
+         (fl-interp (cadr E) P)
        )
-       (if (atom (caddr appl))
-         (caddr appl)
-         (fl-interp (caddr appl) progr)
+       (if (atom (caddr E))
+         (caddr E)
+         (fl-interp (caddr E) P)
        )
   )
 )
@@ -444,14 +446,14 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-or (appl progr)
-  (or (if (atom (cadr appl))
-        (cadr appl)
-        (fl-interp (cadr appl) progr)
+(defun fl-interp-or (E P)
+  (or (if (atom (cadr E))
+        (cadr E)
+        (fl-interp (cadr E) P)
       )
-      (if (atom (caddr appl))
-        (caddr appl)
-        (fl-interp (caddr appl) progr)
+      (if (atom (caddr E))
+        (caddr E)
+        (fl-interp (caddr E) P)
       )
   )
 )
@@ -461,10 +463,10 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-interp-not (appl progr)
-  (not (if (atom (cadr appl))
-       (cadr appl)
-       (fl-interp (cadr appl) progr)
+(defun fl-interp-not (E P)
+  (not (if (atom (cadr E))
+       (cadr E)
+       (fl-interp (cadr E) P)
      )
   )
 )
@@ -474,9 +476,9 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-parse-command (appl def)
+(defun fl-parse-command (E def)
   (if (null def)
-    appl
+    E
     nil ;TODO: implement this
   )
 )
@@ -486,25 +488,16 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-get-command (appl progr)
+(defun fl-get-command (E P)
   (cond
     (
-      (null progr)
+      (null P)
       nil
     )
     (
-      (equal (car appl) (caar progr))
-      (car progr)
+      (equal (car E) (caar P))
+      (car P)
     )
-    (T (fl-get-command appl (cdr progr)))
+    (T (fl-get-command E (cdr P)))
   )
 )
-
-#| TODO: remove; test
-(trace fl-get-command)
-(fl-get-command nil nil)
-(fl-get-command '(1 2 3) nil)
-(fl-get-command '(test-fn 1) '((test-fn X = (+ 1 X))))
-(fl-get-command '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))
-(untrace fl-get-command)
-|#
