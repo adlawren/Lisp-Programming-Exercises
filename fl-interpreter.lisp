@@ -177,36 +177,18 @@
         )
         (T
           (parse-user-defined-function (cons (fl-interp first-item P) (fl-interp args P)) P)
-          #|
-          (let
-            ((application (cons first-item (fl-interp (cdr E) P))))
-            (parse-user-defined-function application P)
-          )
-          |#
-          #|
-          (let
-            (
-              (function-def (fl-get-function-definition first-item P))
-            )
-            (if (null function-def)
-              E
-              (fl-interp
-                (fl-get-function-application
-                  (cdr (fl-get-function-header function-def))
-                  (fl-eval-args (cdr E) P)
-                  (fl-get-function-body function-def)
-                )
-                P
-              )
-            )
-          )
-          |#
         )
       )
     )
   )
 )
 
+
+; Helper function which parses a non-primitive function given to the interpreter.
+;
+; Test Cases:
+;
+; ...
 (defun parse-user-defined-function (F P)
   (if P
     (if (equal (car F) (caar P))
@@ -224,20 +206,18 @@
   )
 )
 
-(defun fl-eval-args (A P)
-  (if (null A)
-    nil
-    (cons (fl-interp (car A) P) (fl-eval-args (cdr A) P))
-  )
-)
-
+; Helper function which retrieves the function application associated with a function header, argmument values and body.
+;
+; Test Cases:
+;
+; ...
 (defun fl-get-function-application (H A B)
   (if (null B)
     nil
     (let ((first-item (car B)))
       (cond
         (
-          (fl-is-parameter first-item)
+          (fl-is-argument first-item)
           (cons (fl-get-arg-value
                   first-item
                   H
@@ -261,6 +241,11 @@
   )
 )
 
+; Helper function which retrieves the value associated with the given parameter name and function argument list.
+;
+; Test Cases:
+;
+; ...
 (defun fl-get-arg-value (N H A)
   (cond
     (
@@ -272,25 +257,6 @@
       (car A)
     )
     (T (fl-get-arg-value N (cdr H) (cdr A)))
-  )
-)
-
-; Helper function which determines whether or not the given argument is a user defined function.
-;
-; Test Cases:
-;
-; ...
-(defun fl-get-function-definition (N P)
-  (cond
-    (
-      (null P)
-      nil
-    )
-    (
-      (equal N (caar P))
-      (car P)
-    )
-    (T (fl-get-function-definition N (cdr P)))
   )
 )
 
@@ -327,91 +293,17 @@
   )
 )
 
-; Helper function which retrieves the value of a parameter from an application of a user-defined function.
+; Helper function which determines whether or not the given argument is a valid argument name.
 ;
 ; Test Cases:
 ;
 ; ...
-(defun fl-get-function-parameter-value (E H V)
-  (cond
-    (
-      (or
-        (null E)
-        (null H)
-      )
-      nil
-    )
-    (
-      (equal (car H) V)
-      (car E)
-    )
-    (T (fl-get-function-parameter-value (cdr E) (cdr H) V))
-  )
-)
-
-; Helper function which computes the expanded functional application of a given user-defined function, given the original application of the function and the header & body of the function.
-;
-; Test Cases:
-;
-; ...
-(defun fl-get-program-application (E H B P)
-  (if (null B)
-    nil
-    (let ((first-item (car B)))
-      (cond
-        (
-          (fl-is-parameter first-item)
-          (cons (fl-get-function-parameter-value
-                  E
-                  H
-                  first-item
-                )
-                (fl-get-program-application E H (cdr B) P)
-          )
-        )
-        (
-          (atom first-item)
-          (cons first-item (fl-get-program-application E H (cdr B) P))
-        )
-        (T
-          (cons
-            (cons (car first-item) (fl-get-program-application E H (cdr first-item) P))
-            (fl-get-program-application E H (cdr B) P)
-          )
-        )
-      )
-    )
-  )
-)
-
-(defun fl-is-parameter (P)
+(defun fl-is-argument (A)
   (or
-    (equal 'X P)
-    (equal 'Y P)
-    (equal 'Z P)
-    (equal 'M P)
-    (equal 'L P)
+    (equal 'X A)
+    (equal 'Y A)
+    (equal 'Z A)
+    (equal 'M A)
+    (equal 'L A)
   )
 )
-
-; Helper function which determines whether or not the given argument is a user defined function.
-;
-; Test Cases:
-;
-; ...
-#|
-(defun fl-parse-user-defined-function (E P D)
-  (if (null D)
-    E
-    (fl-interp
-      (fl-get-program-application
-        E
-        (fl-get-function-header D)
-        (fl-get-function-body D)
-        P
-      )
-      P
-    )
-  )
-)
-|#

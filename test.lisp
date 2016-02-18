@@ -278,11 +278,20 @@
       '(reverse (1 2 3 4 5 6 7 8 9 10))
       '(
         (reverse X =  (if (null X)
-                           nil
-                           (append (reverse (rest X)) (cons (first X) nil))))
+                        nil
+      					        (append
+                          (reverse (rest X))
+                          (cons (first X) nil)
+                        )
+                      )
+        )
         (append X Y = (if (null X)
-                            Y
-                            (cons (first X) (append (rest X) Y)))
+                        Y
+      				          (cons
+                          (first X)
+                          (append (rest X) Y)
+                        )
+                      )
         )
       )
     )
