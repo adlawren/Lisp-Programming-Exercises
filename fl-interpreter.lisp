@@ -5,16 +5,19 @@
 ; ...
 (defun fl-interp (E P)
   (if (atom E) E
-    (let ((first-item (car E)))
+    (let (
+           (first-item (car E))
+           (args (cdr E))
+         )
       (cond
         (
           (equal
             first-item
             'if
           )
-          (if (equal T (fl-interp (cadr E) P))
-              (fl-interp (caddr E) P)
-              (fl-interp (cadddr E) P)
+          (if (equal T (fl-interp (car args) P))
+              (fl-interp (cadr args) P)
+              (fl-interp (caddr args) P)
           )
         )
         (
@@ -22,14 +25,14 @@
             first-item
             'null
           )
-          (null (fl-interp (cadr E) P))
+          (null (fl-interp (car args) P))
         )
         (
           (equal
             first-item
             'atom
           )
-          (atom (fl-interp (cadr E) P))
+          (atom (fl-interp (car args) P))
         )
         (
           (equal
@@ -37,8 +40,8 @@
             'eq
           )
           (eq
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -47,7 +50,7 @@
             'first
           )
           (car
-            (fl-interp (cadr E) P)
+            (fl-interp (car args) P)
           )
         )
         (
@@ -56,7 +59,7 @@
             'rest
           )
           (cdr
-            (fl-interp (cadr E) P)
+            (fl-interp (car args) P)
           )
         )
         (
@@ -64,7 +67,7 @@
             first-item
             'cons
           )
-          (cons (fl-interp (cadr E) P) (fl-interp (caddr E) P))
+          (cons (fl-interp (car args) P) (fl-interp (cadr args) P))
         )
         (
           (equal
@@ -72,8 +75,8 @@
             'equal
           )
           (equal
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -81,7 +84,7 @@
             first-item
             'number
           )
-          (numberp (fl-interp (cadr E) P))
+          (numberp (fl-interp (car args) P))
         )
         (
           (equal
@@ -89,8 +92,8 @@
             '+
           )
           (+
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -99,8 +102,8 @@
             '-
           )
           (-
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -109,8 +112,8 @@
             '*
           )
           (*
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -119,8 +122,8 @@
             '>
           )
           (>
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -129,8 +132,8 @@
             '<
           )
           (<
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -139,8 +142,8 @@
             '=
           )
           (=
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -149,8 +152,8 @@
             'and
           )
           (and
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -159,8 +162,8 @@
             'or
           )
           (or
-            (fl-interp (cadr E) P)
-            (fl-interp (caddr E) P)
+            (fl-interp (car args) P)
+            (fl-interp (cadr args) P)
           )
         )
         (
@@ -169,11 +172,18 @@
             'not
           )
           (not
-            (fl-interp (cadr E) P)
+            (fl-interp (car args) P)
           )
         )
         (T
-          ;(fl-parse-user-defined-function E P (fl-get-function-definition first-item P))
+          (parse-user-defined-function (cons (fl-interp first-item P) (fl-interp args P)) P)
+          #|
+          (let
+            ((application (cons first-item (fl-interp (cdr E) P))))
+            (parse-user-defined-function application P)
+          )
+          |#
+          #|
           (let
             (
               (function-def (fl-get-function-definition first-item P))
@@ -190,9 +200,27 @@
               )
             )
           )
+          |#
         )
       )
     )
+  )
+)
+
+(defun parse-user-defined-function (F P)
+  (if P
+    (if (equal (car F) (caar P))
+      (fl-interp
+        (fl-get-function-application
+          (cdr (fl-get-function-header (car P)))
+          (cdr F)
+          (fl-get-function-body (car P))
+        )
+        P
+      )
+      (parse-user-defined-function F (cdr P))
+    )
+    F
   )
 )
 
@@ -371,6 +399,7 @@
 ; Test Cases:
 ;
 ; ...
+#|
 (defun fl-parse-user-defined-function (E P D)
   (if (null D)
     E
@@ -385,3 +414,4 @@
     )
   )
 )
+|#

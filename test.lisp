@@ -155,6 +155,7 @@
 )
 
 ; User-Defined Function Evaluation Tests
+
 (assert
   (equal
     3
@@ -189,7 +190,6 @@
   )
 )
 
-(trace fl-interp)
 (assert
   (equal
     2
@@ -199,7 +199,6 @@
     )
   )
 )
-(untrace fl-interp)
 
 (assert
   (equal
@@ -221,12 +220,11 @@
   )
 )
 
-#|
 (assert
   (equal
     '(1 2)
     (fl-interp
-      '(append (1) 2)
+      '(append (1) (2))
       '(
         (append X Y = (if (null X)
                             Y
@@ -236,9 +234,7 @@
     )
   )
 )
-|#
 
-#| TODO: fixme
 (assert
   (equal
     '(1)
@@ -247,8 +243,7 @@
       '(
         (reverse X =  (if (null X)
                            nil
-                           (append (reverse rest X))
-                                   (cons (first X) nil)))
+                           (append (reverse (rest X)) (cons (first X) nil))))
         (append X Y = (if (null X)
                             Y
                             (cons (first X) (append (rest X) Y)))
@@ -260,14 +255,13 @@
 
 (assert
   (equal
-    '(3 2 1)
+    '(2 1)
     (fl-interp
-      '(reverse (1 2 3))
+      '(reverse (1 2))
       '(
         (reverse X =  (if (null X)
                            nil
-                           (append (reverse rest X))
-                                   (cons (first X) nil)))
+                           (append (reverse (rest X)) (cons (first X) nil))))
         (append X Y = (if (null X)
                             Y
                             (cons (first X) (append (rest X) Y)))
@@ -281,9 +275,16 @@
   (equal
     '(10 9 8 7 6 5 4 3 2 1)
     (fl-interp
-      '(test-fn (1 2 3 4 5 6 7 8 9 10))
-      '((test-fn X = (if (null X) nil (cons (car X) (reverse (cdr X))))))
+      '(reverse (1 2 3 4 5 6 7 8 9 10))
+      '(
+        (reverse X =  (if (null X)
+                           nil
+                           (append (reverse (rest X)) (cons (first X) nil))))
+        (append X Y = (if (null X)
+                            Y
+                            (cons (first X) (append (rest X) Y)))
+        )
+      )
     )
   )
 )
-|#
