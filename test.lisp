@@ -117,8 +117,8 @@
 ; Program Definition Retrieval Tests
 (assert (equal nil (fl-get-function-definition nil nil)))
 (assert (equal nil (fl-get-function-definition '(1 2 3) nil)))
-(assert (equal '(test-fn X = (+ 1 X)) (fl-get-function-definition '(test-fn 1) '((test-fn X = (+ 1 X))))))
-(assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-function-definition '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
+(assert (equal '(test-fn X = (+ 1 X)) (fl-get-function-definition 'test-fn '((test-fn X = (+ 1 X))))))
+(assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-function-definition 'other-test-fn '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
 
 ; User-Defined Function Header Requisition Tests
 (assert (equal '(test-fn X Y) (fl-get-function-header '(test-fn X Y = (+ X Y)))))
@@ -131,70 +131,25 @@
 (assert (equal 2 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'Y)))
 (assert (equal nil (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'Z)))
 
+; User-Defined Function Parameter Evaluation Tests
+(assert (equal '(1 5 (4 5 6)) (fl-eval-args '(1 (+ 2 3) (4 5 6)) nil)))
+
+; User-Defined Function Argument Acquisition Tests
+(assert (equal 1 (fl-get-arg-value 'X '(X Y Z) '(1 2 3))))
+(assert (equal 2 (fl-get-arg-value 'Y '(X Y Z) '(1 2 3))))
+(assert (equal 3 (fl-get-arg-value 'Z '(X Y Z) '(1 2 3))))
+
 ; User-Defined Function Expansion Requisition Tests
-;(assert (equal nil (fl-get-program-application nil nil nil nil)))
-(assert (equal nil (fl-get-program-application nil nil nil nil)))
+
+(assert (equal nil (fl-get-function-application nil nil nil)))
 
 (assert
   (equal
-    '(+ 1 2)
-    (fl-get-program-application
-      '(test-fn 1 2)
-      (fl-get-function-header
-        '(test-fn X Y = (+ X Y))
-      )
-      (fl-get-function-body
-        '(test-fn X Y = (+ X Y))
-      )
-      '((test-fn X Y = (+ X Y)))
-    )
-  )
-)
-
-(assert
-  (equal
-    '(+ 1 (+ 1 2))
-    (fl-get-program-application
-      '(test-fn 1 2)
-      (fl-get-function-header
-        '(test-fn X Y = (+ X (+ X Y)))
-      )
-      (fl-get-function-body
-        '(test-fn X Y = (+ X (+ X Y)))
-      )
-      '((test-fn X Y = (+ X (+ X Y))))
-    )
-  )
-)
-
-(assert
-  (equal
-    '(+ 1 (+ 2 (+ 1 2)))
-    (fl-get-program-application
-      '(test-fn 1 2)
-      (fl-get-function-header
-        '(test-fn X Y = (+ X (+ Y (+ X Y))))
-      )
-      (fl-get-function-body
-        '(test-fn X Y = (+ X (+ Y (+ X Y))))
-      )
-      '((test-fn X Y = (+ X (+ Y (+ X Y)))))
-    )
-  )
-)
-
-(assert
-  (equal
-    '(if (null (1)) 0 (+ 1 (count (rest (1)))))
-    (fl-get-program-application
-      '(count (1))
-      (fl-get-function-header
-        '(count X = (if (null X) 0 (+ 1 (count (rest X)))))
-      )
-      (fl-get-function-body
-        '(count X = (if (null X) 0 (+ 1 (count (rest X)))))
-      )
-      '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
+    '(if (null (1 2 3)) 0 (+ 1 (count (rest (1 2 3)))))
+    (fl-get-function-application
+      '(X)
+      '((1 2 3))
+      '(if (null X) 0 (+ 1 (count (rest X))))
     )
   )
 )
@@ -234,7 +189,7 @@
   )
 )
 
-;(trace fl-get-program-application)
+(trace fl-interp)
 (assert
   (equal
     2
@@ -244,7 +199,7 @@
     )
   )
 )
-;(untrace fl-get-program-application)
+(untrace fl-interp)
 
 (assert
   (equal

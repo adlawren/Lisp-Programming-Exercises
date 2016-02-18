@@ -173,10 +173,77 @@
           )
         )
         (T
-          (fl-parse-user-defined-function E P (fl-get-function-definition E P))
+          ;(fl-parse-user-defined-function E P (fl-get-function-definition first-item P))
+          (let
+            (
+              (function-def (fl-get-function-definition first-item P))
+            )
+            (if (null function-def)
+              E
+              (fl-interp
+                (fl-get-function-application
+                  (cdr (fl-get-function-header function-def))
+                  (fl-eval-args (cdr E) P)
+                  (fl-get-function-body function-def)
+                )
+                P
+              )
+            )
+          )
         )
       )
     )
+  )
+)
+
+(defun fl-eval-args (A P)
+  (if (null A)
+    nil
+    (cons (fl-interp (car A) P) (fl-eval-args (cdr A) P))
+  )
+)
+
+(defun fl-get-function-application (H A B)
+  (if (null B)
+    nil
+    (let ((first-item (car B)))
+      (cond
+        (
+          (fl-is-parameter first-item)
+          (cons (fl-get-arg-value
+                  first-item
+                  H
+                  A
+                )
+                (fl-get-function-application H A (cdr B))
+          )
+        )
+        (
+          (atom first-item)
+          (cons first-item (fl-get-function-application H A (cdr B)))
+        )
+        (T
+          (cons
+            (cons (car first-item) (fl-get-function-application H A (cdr first-item)))
+            (fl-get-function-application H A (cdr B))
+          )
+        )
+      )
+    )
+  )
+)
+
+(defun fl-get-arg-value (N H A)
+  (cond
+    (
+      (null H)
+      nil
+    )
+    (
+      (equal (car H) N)
+      (car A)
+    )
+    (T (fl-get-arg-value N (cdr H) (cdr A)))
   )
 )
 
@@ -185,17 +252,17 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-get-function-definition (E P)
+(defun fl-get-function-definition (N P)
   (cond
     (
       (null P)
       nil
     )
     (
-      (equal (car E) (caar P))
+      (equal N (caar P))
       (car P)
     )
-    (T (fl-get-function-definition E (cdr P)))
+    (T (fl-get-function-definition N (cdr P)))
   )
 )
 
@@ -205,7 +272,7 @@
 ;
 ; ...
 (defun fl-get-function-header (P)
-  (if (or (null P) (equal '= (car P)))
+  (if (equal '= (car P))
     nil
     (cons (car P) (fl-get-function-header (cdr P)))
   )
@@ -298,78 +365,6 @@
     (equal 'L P)
   )
 )
-
-#|
-(defun fl-get-program-application (E H B A)
-  (if (null B)
-    A
-    (cond
-      (
-        (atom (car B))
-        (let
-          (
-            (parameter-value
-              (fl-get-function-parameter-value
-                E
-                H
-                (car B)
-              )
-            )
-          )
-          (if (null parameter-value)
-            (fl-get-program-application E H (cdr B) (append A (list (car B))))
-            (fl-get-program-application E H (cdr B) (append A (list parameter-value)))
-          )
-        )
-      )
-      (T
-        (append
-          A
-          (list (fl-get-program-application E H (car B) nil))
-          (fl-get-program-application E H (cdr B) nil)
-        )
-      )
-    )
-  )
-)
-|#
-
-#|
-(defun fl-get-program-application-other (E H B)
-  (if (null B)
-    nil
-    (cond
-      (
-        (atom (car B))
-        (let
-          (
-            (parameter-value
-              (fl-get-function-parameter-value
-                E
-                H
-                (car B)
-              )
-            )
-          )
-          (if (null parameter-value)
-            ;(fl-get-program-application E H (cdr B) (append A (list (car B))))
-            (cons (car B) (fl-get-program-application E H (cdr B)))
-            ;(fl-get-program-application E H (cdr B) (append A (list parameter-value)))
-            (cons parameter-value (fl-get-program-application E H (cdr B)))
-          )
-        )
-      )
-      (T
-        (append
-          A
-          (list (fl-get-program-application E H (car B) nil))
-          (fl-get-program-application E H (cdr B) nil)
-        )
-      )
-    )
-  )
-)
-|#
 
 ; Helper function which determines whether or not the given argument is a user defined function.
 ;
