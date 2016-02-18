@@ -114,25 +114,11 @@
 (assert (equal 12 (fl-interp '(if (and (or (- 1 0) (number nil)) (null (atom (1 2)))) (* 3 4) (> 9 0)) nil)))
 (assert (equal T (fl-interp '(if (and nil (null (atom (1 2)))) (* 3 4) (> 9 0)) nil)))
 
-; Program Definition Retrieval Tests
-(assert (equal nil (fl-get-function-definition nil nil)))
-(assert (equal nil (fl-get-function-definition '(1 2 3) nil)))
-(assert (equal '(test-fn X = (+ 1 X)) (fl-get-function-definition 'test-fn '((test-fn X = (+ 1 X))))))
-(assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-function-definition 'other-test-fn '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
-
 ; User-Defined Function Header Requisition Tests
 (assert (equal '(test-fn X Y) (fl-get-function-header '(test-fn X Y = (+ X Y)))))
 
 ; User-Defined Function Body Requisition Tests
 (assert (equal '(+ X Y) (fl-get-function-body '(test-fn X Y = (+ X Y)))))
-
-; User-Defined Function Parameter Value Requisition Tests
-(assert (equal 1 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'X)))
-(assert (equal 2 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'Y)))
-(assert (equal nil (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'Z)))
-
-; User-Defined Function Parameter Evaluation Tests
-(assert (equal '(1 5 (4 5 6)) (fl-eval-args '(1 (+ 2 3) (4 5 6)) nil)))
 
 ; User-Defined Function Argument Acquisition Tests
 (assert (equal 1 (fl-get-arg-value 'X '(X Y Z) '(1 2 3))))

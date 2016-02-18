@@ -190,7 +190,8 @@
 ;
 ; ...
 (defun parse-user-defined-function (F P)
-  (if P
+  (if (null P)
+    F
     (if (equal (car F) (caar P))
       (fl-interp
         (fl-get-function-application
@@ -202,7 +203,6 @@
       )
       (parse-user-defined-function F (cdr P))
     )
-    F
   )
 )
 
