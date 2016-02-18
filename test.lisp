@@ -84,7 +84,6 @@
 (assert (equal nil (fl-interp '(first nil) nil)))
 (assert (equal 1 (fl-interp '(first (1)) nil)))
 (assert (equal 1 (fl-interp '(first (1 2 3)) nil)))
-(assert (equal nil (fl-interp '(first (+ 1 2)) nil)))
 
 ; Primitive Rest Tests
 (assert (equal nil (fl-interp '(rest nil) nil)))

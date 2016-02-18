@@ -4,139 +4,139 @@
 ;
 ; ...
 (defun fl-interp (E P)
-  (cond
-    (
-      (atom E)
-      E
-    )
-    (
-      (equal
-        (car E)
-        'if
+  (if (atom E) E
+    (let ((first-item (car E)))
+      (cond
+        (
+          (equal
+            first-item
+            'if
+          )
+          (fl-interp-if E P)
+        )
+        (
+          (equal
+            first-item
+            'null
+          )
+          (fl-interp-null E P)
+        )
+        (
+          (equal
+            first-item
+            'atom
+          )
+          (fl-interp-atom E P)
+        )
+        (
+          (equal
+            first-item
+            'eq
+          )
+          (fl-interp-eq E P)
+        )
+        (
+          (equal
+            first-item
+            'first
+          )
+          (fl-interp-first E P)
+        )
+        (
+          (equal
+            first-item
+            'rest
+          )
+          (fl-interp-rest E P)
+        )
+        (
+          (equal
+            first-item
+            'cons
+          )
+          (fl-interp-cons E P)
+        )
+        (
+          (equal
+            first-item
+            'equal
+          )
+          (fl-interp-equal E P)
+        )
+        (
+          (equal
+            first-item
+            'number
+          )
+          (fl-interp-number E P)
+        )
+        (
+          (equal
+            first-item
+            '+
+          )
+          (fl-interp-add E P)
+        )
+        (
+          (equal
+            first-item
+            '-
+          )
+          (fl-interp-sub E P)
+        )
+        (
+          (equal
+            first-item
+            '*
+          )
+          (fl-interp-mul E P)
+        )
+        (
+          (equal
+            first-item
+            '>
+          )
+          (fl-interp-greater-than E P)
+        )
+        (
+          (equal
+            first-item
+            '<
+          )
+          (fl-interp-less-than E P)
+        )
+        (
+          (equal
+            first-item
+            '=
+          )
+          (fl-interp-equals E P)
+        )
+        (
+          (equal
+            first-item
+            'and
+          )
+          (fl-interp-and E P)
+        )
+        (
+          (equal
+            first-item
+            'or
+          )
+          (fl-interp-or E P)
+        )
+        (
+          (equal
+            first-item
+            'not
+          )
+          (fl-interp-not E P)
+        )
+        (T
+          (fl-parse-user-defined-function E P (fl-get-function-definition E P))
+        )
       )
-      (fl-interp-if E P)
-    )
-    (
-      (equal
-        (car E)
-        'null
-      )
-      (fl-interp-null E P)
-    )
-    (
-      (equal
-        (car E)
-        'atom
-      )
-      (fl-interp-atom E P)
-    )
-    (
-      (equal
-        (car E)
-        'eq
-      )
-      (fl-interp-eq E P)
-    )
-    (
-      (equal
-        (car E)
-        'first
-      )
-      (fl-interp-first E P)
-    )
-    (
-      (equal
-        (car E)
-        'rest
-      )
-      (fl-interp-rest E P)
-    )
-    (
-      (equal
-        (car E)
-        'cons
-      )
-      (fl-interp-cons E P)
-    )
-    (
-      (equal
-        (car E)
-        'equal
-      )
-      (fl-interp-equal E P)
-    )
-    (
-      (equal
-        (car E)
-        'number
-      )
-      (fl-interp-number E P)
-    )
-    (
-      (equal
-        (car E)
-        '+
-      )
-      (fl-interp-add E P)
-    )
-    (
-      (equal
-        (car E)
-        '-
-      )
-      (fl-interp-sub E P)
-    )
-    (
-      (equal
-        (car E)
-        '*
-      )
-      (fl-interp-mul E P)
-    )
-    (
-      (equal
-        (car E)
-        '>
-      )
-      (fl-interp-greater-than E P)
-    )
-    (
-      (equal
-        (car E)
-        '<
-      )
-      (fl-interp-less-than E P)
-    )
-    (
-      (equal
-        (car E)
-        '=
-      )
-      (fl-interp-equals E P)
-    )
-    (
-      (equal
-        (car E)
-        'and
-      )
-      (fl-interp-and E P)
-    )
-    (
-      (equal
-        (car E)
-        'or
-      )
-      (fl-interp-or E P)
-    )
-    (
-      (equal
-        (car E)
-        'not
-      )
-      (fl-interp-not E P)
-    )
-    (T
-      (fl-parse-user-defined-function E P (fl-get-function-definition E P))
     )
   )
 )
@@ -161,10 +161,7 @@
 ;
 ; ...
 (defun fl-interp-null (E P)
-  (if (atom (cadr E))
-    (null (cadr E))
-    (null (fl-interp (cadr E) P))
-  )
+  (null (fl-interp (cadr E) P))
 )
 
 ; Helper function which computes the primitive atom function.
@@ -173,19 +170,7 @@
 ;
 ; ...
 (defun fl-interp-atom (E P)
-  (if (atom (cadr E))
-    T
-    (cond
-      (
-        (or
-          (null (caadr E))
-          (numberp (caadr E))
-        )
-        nil
-      )
-      (T (atom (fl-interp (cadr E) P)))
-    )
-  )
+  (atom (fl-interp (cadr E) P))
 )
 
 ; Helper function which computes the primitive eq function.
@@ -206,18 +191,8 @@
 ;
 ; ...
 (defun fl-interp-first (E P)
-  (if (atom E)
-    nil
-    (cond
-      (
-        (or
-          (null (caadr E))
-          (numberp (caadr E))
-        )
-        (caadr E)
-      )
-      (T (fl-interp-first (fl-interp (cadr E) P) P))
-    )
+  (car
+    (fl-interp (cadr E) P)
   )
 )
 
@@ -227,18 +202,8 @@
 ;
 ; ...
 (defun fl-interp-rest (E P)
-  (if (atom E)
-    nil
-    (cond
-      (
-        (or
-          (null (caadr E))
-          (numberp (caadr E))
-        )
-        (cdadr E)
-      )
-      (T (cdr (fl-interp (cadr E) P)))
-    )
+  (cdr
+    (fl-interp (cadr E) P)
   )
 )
 
@@ -248,22 +213,7 @@
 ;
 ; ...
 (defun fl-interp-cons (E P)
-  (cons
-    (if (atom (cadr E))
-      (cadr E)
-      (fl-interp (cadr E) P)
-    )
-    (cond
-      (
-        (or
-          (null (caaddr E))
-          (numberp (caaddr E))
-        )
-        (caddr E)
-      )
-      (T (fl-interp (caddr E) P))
-    )
-  )
+  (cons (fl-interp (cadr E) P) (fl-interp (caddr E) P))
 )
 
 ; Helper function which computes the primitive equal function.
@@ -273,30 +223,8 @@
 ; ...
 (defun fl-interp-equal (E P)
   (equal
-    (cond
-      (
-        (or
-          (null (cadr E))
-          (numberp (cadr E))
-          (null (caadr E))
-          (numberp (caadr E))
-        )
-        (cadr E)
-      )
-      (T (fl-interp (cadr E) P))
-    )
-    (cond
-      (
-        (or
-          (null (caddr E))
-          (numberp (caddr E))
-          (null (caaddr E))
-          (numberp (caaddr E))
-        )
-        (caddr E)
-      )
-      (T (fl-interp (caddr E) P))
-    )
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -306,22 +234,7 @@
 ;
 ; ...
 (defun fl-interp-number (E P)
-  (numberp
-    (cond
-      (
-        (atom (cadr E))
-        (cadr E)
-      )
-      (
-        (or
-          (null (caadr E))
-          (numberp (caadr E))
-        )
-        (cadr E)
-      )
-      (T (fl-interp (cadr E) P))
-    )
-  )
+  (numberp (fl-interp (cadr E) P))
 )
 
 ; Helper function which computes the primitive addition function.
@@ -330,14 +243,9 @@
 ;
 ; ...
 (defun fl-interp-add (E P)
-  (+ (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
-     (if (atom (caddr E))
-       (caddr E)
-       (fl-interp (caddr E) P)
-     )
+  (+
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -347,14 +255,9 @@
 ;
 ; ...
 (defun fl-interp-sub (E P)
-  (- (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
-     (if (atom (caddr E))
-       (caddr E)
-       (fl-interp (caddr E) P)
-     )
+  (-
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -363,14 +266,9 @@
 ; Test Cases:
 ; ...
 (defun fl-interp-mul (E P)
-  (* (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
-     (if (atom (caddr E))
-       (caddr E)
-       (fl-interp (caddr E) P)
-     )
+  (*
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -380,14 +278,9 @@
 ;
 ; ...
 (defun fl-interp-greater-than (E P)
-  (> (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
-     (if (atom (caddr E))
-       (caddr E)
-       (fl-interp (caddr E) P)
-     )
+  (>
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -397,14 +290,9 @@
 ;
 ; ...
 (defun fl-interp-less-than (E P)
-  (< (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
-     (if (atom (caddr E))
-       (caddr E)
-       (fl-interp (caddr E) P)
-     )
+  (<
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -413,14 +301,9 @@
 ; Test Cases:
 ; ...
 (defun fl-interp-equals (E P)
-  (= (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
-     (if (atom (caddr E))
-       (caddr E)
-       (fl-interp (caddr E) P)
-     )
+  (=
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -430,14 +313,9 @@
 ;
 ; ...
 (defun fl-interp-and (E P)
-  (and (if (atom (cadr E))
-         (cadr E)
-         (fl-interp (cadr E) P)
-       )
-       (if (atom (caddr E))
-         (caddr E)
-         (fl-interp (caddr E) P)
-       )
+  (and
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -447,14 +325,9 @@
 ;
 ; ...
 (defun fl-interp-or (E P)
-  (or (if (atom (cadr E))
-        (cadr E)
-        (fl-interp (cadr E) P)
-      )
-      (if (atom (caddr E))
-        (caddr E)
-        (fl-interp (caddr E) P)
-      )
+  (or
+    (fl-interp (cadr E) P)
+    (fl-interp (caddr E) P)
   )
 )
 
@@ -464,10 +337,8 @@
 ;
 ; ...
 (defun fl-interp-not (E P)
-  (not (if (atom (cadr E))
-       (cadr E)
-       (fl-interp (cadr E) P)
-     )
+  (not
+    (fl-interp (cadr E) P)
   )
 )
 
