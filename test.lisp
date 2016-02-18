@@ -121,17 +121,18 @@
 (assert (equal '(other-test-fn X = (+ 2 X)) (fl-get-function-definition '(other-test-fn 1) '((test-fn X = (+ 1 X)) (other-test-fn X = (+ 2 X))))))
 
 ; User-Defined Function Header Requisition Tests
-(assert (equal '(test-fn X Y) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil)))
+(assert (equal '(test-fn X Y) (fl-get-function-header '(test-fn X Y = (+ X Y)))))
 
 ; User-Defined Function Body Requisition Tests
 (assert (equal '(+ X Y) (fl-get-function-body '(test-fn X Y = (+ X Y)))))
 
 ; User-Defined Function Parameter Value Requisition Tests
-(assert (equal 1 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) 'X)))
-(assert (equal 2 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) 'Y)))
-(assert (equal nil (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y)) nil) 'Z)))
+(assert (equal 1 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'X)))
+(assert (equal 2 (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'Y)))
+(assert (equal nil (fl-get-function-parameter-value '(test-fn 1 2) (fl-get-function-header '(test-fn X Y = (+ X Y))) 'Z)))
 
 ; User-Defined Function Expansion Requisition Tests
+;(assert (equal nil (fl-get-program-application nil nil nil nil)))
 (assert (equal nil (fl-get-program-application nil nil nil nil)))
 
 (assert
@@ -141,12 +142,11 @@
       '(test-fn 1 2)
       (fl-get-function-header
         '(test-fn X Y = (+ X Y))
-        nil
       )
       (fl-get-function-body
         '(test-fn X Y = (+ X Y))
       )
-      nil
+      '((test-fn X Y = (+ X Y)))
     )
   )
 )
@@ -158,12 +158,11 @@
       '(test-fn 1 2)
       (fl-get-function-header
         '(test-fn X Y = (+ X (+ X Y)))
-        nil
       )
       (fl-get-function-body
         '(test-fn X Y = (+ X (+ X Y)))
       )
-      nil
+      '((test-fn X Y = (+ X (+ X Y))))
     )
   )
 )
@@ -175,12 +174,11 @@
       '(test-fn 1 2)
       (fl-get-function-header
         '(test-fn X Y = (+ X (+ Y (+ X Y))))
-        nil
       )
       (fl-get-function-body
         '(test-fn X Y = (+ X (+ Y (+ X Y))))
       )
-      nil
+      '((test-fn X Y = (+ X (+ Y (+ X Y)))))
     )
   )
 )
@@ -192,12 +190,11 @@
       '(count (1))
       (fl-get-function-header
         '(count X = (if (null X) 0 (+ 1 (count (rest X)))))
-        nil
       )
       (fl-get-function-body
         '(count X = (if (null X) 0 (+ 1 (count (rest X)))))
       )
-      nil
+      '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
     )
   )
 )
@@ -217,6 +214,18 @@
 
 (assert
   (equal
+    7
+    (fl-interp
+      '(test-fn 1 2 3)
+      '(
+        (test-fn X Y Z = (+ X (+ Y (+ 1 Z))))
+      )
+    )
+  )
+)
+
+(assert
+  (equal
     1
     (fl-interp
       '(count (1))
@@ -225,6 +234,7 @@
   )
 )
 
+;(trace fl-get-program-application)
 (assert
   (equal
     2
@@ -234,6 +244,7 @@
     )
   )
 )
+;(untrace fl-get-program-application)
 
 (assert
   (equal
@@ -255,13 +266,39 @@
   )
 )
 
+#|
+(assert
+  (equal
+    '(1 2)
+    (fl-interp
+      '(append (1) 2)
+      '(
+        (append X Y = (if (null X)
+                            Y
+                            (cons (first X) (append (rest X) Y)))
+        )
+      )
+    )
+  )
+)
+|#
+
 #| TODO: fixme
 (assert
   (equal
-    '(10 9 8 7 6 5 4 3 2 1)
+    '(1)
     (fl-interp
-      '(test-fn (1 2 3 4 5 6 7 8 9 10))
-      '((test-fn X = (if (null X) nil (cons (car X) (reverse (cdr X))))))
+      '(reverse (1))
+      '(
+        (reverse X =  (if (null X)
+                           nil
+                           (append (reverse rest X))
+                                   (cons (first X) nil)))
+        (append X Y = (if (null X)
+                            Y
+                            (cons (first X) (append (rest X) Y)))
+        )
+      )
     )
   )
 )
@@ -281,6 +318,16 @@
                             (cons (first X) (append (rest X) Y)))
         )
       )
+    )
+  )
+)
+
+(assert
+  (equal
+    '(10 9 8 7 6 5 4 3 2 1)
+    (fl-interp
+      '(test-fn (1 2 3 4 5 6 7 8 9 10))
+      '((test-fn X = (if (null X) nil (cons (car X) (reverse (cdr X))))))
     )
   )
 )

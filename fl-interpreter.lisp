@@ -366,18 +366,10 @@
 ; Test Cases:
 ;
 ; ...
-(defun fl-get-function-header (P H)
-  (cond
-    (
-      (or
-        (null P)
-        (equal '= (car P))
-      )
-      H
-    )
-    (T
-      (fl-get-function-header (cdr P) (append H (list (car P))))
-    )
+(defun fl-get-function-header (P)
+  (if (or (null P) (equal '= (car P)))
+    nil
+    (cons (car P) (fl-get-function-header (cdr P)))
   )
 )
 
@@ -413,8 +405,6 @@
       (or
         (null E)
         (null H)
-        (atom E)
-        (atom H)
       )
       nil
     )
@@ -431,15 +421,67 @@
 ; Test Cases:
 ;
 ; ...
+(defun fl-get-program-application (E H B P)
+  (if (null B)
+    nil
+    (let ((first-item (car B)))
+      (cond
+        (
+          (fl-is-parameter first-item)
+          (cons (fl-get-function-parameter-value
+                  E
+                  H
+                  first-item
+                )
+                (fl-get-program-application E H (cdr B) P)
+          )
+        )
+        (
+          (atom first-item)
+          (cons first-item (fl-get-program-application E H (cdr B) P))
+        )
+        (T
+          (cons
+            (cons (car first-item) (fl-get-program-application E H (cdr first-item) P))
+            (fl-get-program-application E H (cdr B) P)
+          )
+        )
+      )
+    )
+  )
+)
+
+(defun fl-is-parameter (P)
+  (or
+    (equal 'X P)
+    (equal 'Y P)
+    (equal 'Z P)
+    (equal 'M P)
+    (equal 'L P)
+  )
+)
+
+#|
 (defun fl-get-program-application (E H B A)
   (if (null B)
     A
     (cond
       (
         (atom (car B))
-        (if (fl-get-function-parameter-value E H (car B))
-          (fl-get-program-application E H (cdr B) (append A (list (fl-get-function-parameter-value E H (car B)))))
-          (fl-get-program-application E H (cdr B) (append A (list (car B))))
+        (let
+          (
+            (parameter-value
+              (fl-get-function-parameter-value
+                E
+                H
+                (car B)
+              )
+            )
+          )
+          (if (null parameter-value)
+            (fl-get-program-application E H (cdr B) (append A (list (car B))))
+            (fl-get-program-application E H (cdr B) (append A (list parameter-value)))
+          )
         )
       )
       (T
@@ -452,6 +494,44 @@
     )
   )
 )
+|#
+
+#|
+(defun fl-get-program-application-other (E H B)
+  (if (null B)
+    nil
+    (cond
+      (
+        (atom (car B))
+        (let
+          (
+            (parameter-value
+              (fl-get-function-parameter-value
+                E
+                H
+                (car B)
+              )
+            )
+          )
+          (if (null parameter-value)
+            ;(fl-get-program-application E H (cdr B) (append A (list (car B))))
+            (cons (car B) (fl-get-program-application E H (cdr B)))
+            ;(fl-get-program-application E H (cdr B) (append A (list parameter-value)))
+            (cons parameter-value (fl-get-program-application E H (cdr B)))
+          )
+        )
+      )
+      (T
+        (append
+          A
+          (list (fl-get-program-application E H (car B) nil))
+          (fl-get-program-application E H (cdr B) nil)
+        )
+      )
+    )
+  )
+)
+|#
 
 ; Helper function which determines whether or not the given argument is a user defined function.
 ;
@@ -464,9 +544,9 @@
     (fl-interp
       (fl-get-program-application
         E
-        (fl-get-function-header D nil)
+        (fl-get-function-header D)
         (fl-get-function-body D)
-        nil
+        P
       )
       P
     )
