@@ -2,7 +2,18 @@
 ;
 ; Test Cases:
 ;
-; ...
+; (fl-interp '(+ (- 1 (* 2 3)) (* 4 (- 5 (+ 6 7)))) nil) => -37
+; (fl-interp '(if (and (or (- 1 0) (number nil)) (null (atom (1 2)))) (* 3 4) (> 9 0)) nil) => 12
+; (fl-interp
+;   '(count (1 2 3 4 5 6 7 8 9 10))
+;   '((count X = (if (null X) 0 (+ 1 (count (rest X))))))
+; ) => 10
+; (fl-interp
+;   '(reverse (1 2 3 4 5 6 7 8 9 10))
+;   '((reverse X =  (if (null X) nil (append (reverse (rest X)) (cons (first X) nil))))
+;     (append X Y = (if (null X) Y (cons (first X) (append (rest X) Y))))
+;    )
+; ) => (10 9 8 7 6 5 4 3 2 1)
 (defun fl-interp (E P)
   (if (atom E) E
     (let (
@@ -176,7 +187,7 @@
           )
         )
         (T
-          (parse-user-defined-function (cons (fl-interp first-item P) (fl-interp args P)) P)
+          (fl-parse-user-defined-function (cons (fl-interp first-item P) (fl-interp args P)) P)
         )
       )
     )
@@ -187,8 +198,8 @@
 ;
 ; Test Cases:
 ;
-; ...
-(defun parse-user-defined-function (F P)
+; (fl-parse-user-defined-function '(test-fn 1 2) '((test-fn X Y = (+ X Y)))) => 3
+(defun fl-parse-user-defined-function (F P)
   (if (null P)
     F
     (if (equal (car F) (caar P))
@@ -200,7 +211,7 @@
         )
         P
       )
-      (parse-user-defined-function F (cdr P))
+      (fl-parse-user-defined-function F (cdr P))
     )
   )
 )
@@ -209,7 +220,7 @@
 ;
 ; Test Cases:
 ;
-; ...
+; (fl-get-function-application '(X) '((1 2 3)) '(if (null X) 0 (+ 1 (count (rest X))))) => (if (null (1 2 3)) 0 (+ 1 (count (rest (1 2 3)))))
 (defun fl-get-function-application (H A B)
   (if (null B)
     nil
@@ -244,7 +255,9 @@
 ;
 ; Test Cases:
 ;
-; ...
+; (fl-get-arg-value 'X '(X Y Z) '(1 2 3)) => 1
+; (fl-get-arg-value 'Y '(X Y Z) '(1 2 3)) => 2
+; (fl-get-arg-value 'Z '(X Y Z) '(1 2 3)) => 3
 (defun fl-get-arg-value (N H A)
   (cond
     (
@@ -263,7 +276,7 @@
 ;
 ; Test Cases:
 ;
-; ...
+; (fl-get-function-header '(test-fn X Y = (+ X Y))) => (test-fn X Y)
 (defun fl-get-function-header (P)
   (if (equal '= (car P))
     nil
@@ -275,7 +288,7 @@
 ;
 ; Test Cases:
 ;
-; ...
+; (fl-get-function-body '(test-fn X Y = (+ X Y))) => (+ X Y)
 (defun fl-get-function-body (P)
   (cond
     (
@@ -296,7 +309,9 @@
 ;
 ; Test Cases:
 ;
-; ...
+; (fl-is-argument 'X) => T
+; (fl-is-argument 'L) => T
+; (fl-is-argument 'B) => F
 (defun fl-is-argument (A)
   (or
     (equal 'X A)

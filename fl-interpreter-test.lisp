@@ -140,6 +140,19 @@
   )
 )
 
+; User-Defined Function Parse Tests
+(assert
+  (equal
+    3
+    (fl-parse-user-defined-function
+      '(test-fn 1 2)
+      '(
+        (test-fn X Y = (+ X Y))
+       )
+    )
+  )
+)
+
 ; User-Defined Function Evaluation Tests
 
 (assert
