@@ -183,7 +183,6 @@
   )
 )
 
-
 ; Helper function which parses a non-primitive function given to the interpreter.
 ;
 ; Test Cases:
