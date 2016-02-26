@@ -181,6 +181,19 @@
 
 (assert
   (equal
+    6
+    (fl-interp
+      '(test-fn 1 2 3)
+      '(
+        (test-fn X Y = (+ X Y))
+        (test-fn X Y Z = (+ X (+ Y Z)))
+      )
+    )
+  )
+)
+
+(assert
+  (equal
     1
     (fl-interp
       '(count (1))

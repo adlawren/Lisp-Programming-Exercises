@@ -202,16 +202,22 @@
 (defun fl-parse-user-defined-function (F P)
   (if (null P)
     F
-    (if (equal (car F) (caar P))
-      (fl-interp
-        (fl-get-function-application
-          (cdr (fl-get-function-header (car P)))
-          (cdr F)
-          (fl-get-function-body (car P))
+    (if (and
+          (equal (car F) (caar P))
+          (equal
+            (fl-count (cdr F))
+            (fl-count (cdr (fl-get-function-header (car P))))
+          )
         )
-        P
-      )
-      (fl-parse-user-defined-function F (cdr P))
+        (fl-interp
+          (fl-get-function-application
+            (cdr (fl-get-function-header (car P)))
+            (cdr F)
+            (fl-get-function-body (car P))
+          )
+          P
+        )
+        (fl-parse-user-defined-function F (cdr P))
     )
   )
 )
@@ -319,5 +325,19 @@
     (equal 'Z A)
     (equal 'M A)
     (equal 'L A)
+  )
+)
+
+; Helper function used to count the number of items in a list.
+;
+; Test Cases:
+;
+; (fl-count '()) => 0
+; (fl-count '(1)) => 1
+; (fl-count '(A B C D E F G)) => 7
+(defun fl-count (L)
+  (if (null L)
+    0
+    (+ 1 (fl-count (cdr L)))
   )
 )
